@@ -1,24 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 
+import { getEntries, getTreatments } from './api';
+
+import CurrentGlucose from './components/CurrentGlucose';
+import Entry from './EntryModel';
+import Treatment from './TreatmentModel';
+
 function App() {
+  const [entries, setEntries] = useState<Entry[] | []>([]);
+  const [treatments, setTreatments] = useState<Treatment[] | null>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDataOnLoad = async () => {
+      try {
+        const entries = await getEntries();
+        const treatments = await getTreatments();
+        setEntries(entries);
+        setTreatments(treatments);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDataOnLoad();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='App'>
+      {!isLoading && entries.length !== 0 && (
+        <>
+          <CurrentGlucose sgv={entries[0].sgv} />
+        </>
+      )}
     </div>
   );
 }
