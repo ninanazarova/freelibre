@@ -6,6 +6,8 @@ import { getEntries, getTreatments } from './api';
 import CurrentGlucose from './components/CurrentGlucose';
 import Entry from './EntryModel';
 import Treatment from './TreatmentModel';
+import Chart from './components/Chart';
+import { calculate } from './helpers';
 
 function App() {
   const [entries, setEntries] = useState<Entry[] | []>([]);
@@ -33,7 +35,8 @@ function App() {
     <div className='App'>
       {!isLoading && entries.length !== 0 && (
         <>
-          <CurrentGlucose sgv={entries[0].sgv} />
+          <CurrentGlucose sgv={calculate(entries[entries.length - 1].sgv)} />
+          <Chart dataset={entries} />
         </>
       )}
     </div>

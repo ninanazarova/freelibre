@@ -27,7 +27,9 @@ const getEntries = async (): Promise<Entry[] | []> => {
   const url = BASE_URL + `/entries`;
   try {
     const { data } = await axios.get(url, { headers, params: chartParams });
-    return data;
+
+    const reversedData = data.reverse();
+    return reversedData;
   } catch (error) {
     console.error(error);
   }

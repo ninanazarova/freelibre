@@ -5,7 +5,7 @@ const CurrentGlucose = (props: { sgv: number }) => {
   return (
     <AspectRatio>
       <Typography level='h2' component='div'>
-        {props.sgv / 18}
+        {props.sgv}
       </Typography>
     </AspectRatio>
   );
