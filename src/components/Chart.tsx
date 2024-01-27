@@ -3,17 +3,20 @@ import { LineChart } from '@mui/x-charts/LineChart';
 import Entry from '../EntryModel';
 import { format } from 'date-fns';
 import Box from '@mui/joy/Box';
-import { calculate } from '../helpers';
 
 const Chart = (props: { dataset: Entry[] }) => {
+  const { dataset } = props;
+  const connectNulls = false;
+
   return (
     <LineChart
+      tooltip={{ trigger: 'axis' }}
       yAxis={[
         {
           min: 0,
-          max: 25 * 18,
-          tickMinStep: 18 * 5,
-          valueFormatter: (v: number) => calculate(v).toString(),
+          max: 25,
+          tickMinStep: 5,
+          valueFormatter: (v: number) => v.toString(),
         },
       ]}
       xAxis={[
@@ -27,12 +30,12 @@ const Chart = (props: { dataset: Entry[] }) => {
         {
           dataKey: 'sgv',
           showMark: false,
-          valueFormatter: (v: number) => calculate(v).toString(),
+          connectNulls,
+          valueFormatter: (v: number) => v.toString(),
         },
       ]}
       slots={{
         axisContent: (props) => {
-          const val = calculate(props.axisData.y?.value as number);
           return (
             <Box
               sx={{
@@ -41,7 +44,9 @@ const Chart = (props: { dataset: Entry[] }) => {
                 border: '1px solid grey',
               }}
             >
-              {val.toString()}
+              {`Data value: ${
+                props.dataIndex ? dataset[props.dataIndex].sgv : 'no Data'
+              }`}
               <hr />
               {format(props.axisValue, 'HH:mm:ss')}
             </Box>
@@ -49,7 +54,7 @@ const Chart = (props: { dataset: Entry[] }) => {
         },
       }}
       height={300}
-      dataset={props.dataset}
+      dataset={dataset}
     />
   );
 };

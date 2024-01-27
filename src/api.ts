@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Entry from './EntryModel';
 import Treatment from './TreatmentModel';
+import { calculate } from './helpers';
 
 const TOKEN = process.env.REACT_APP_TOKEN;
 const BASE_URL = process.env.REACT_APP_BASE_URL;
@@ -28,8 +29,10 @@ const getEntries = async (): Promise<Entry[] | []> => {
   try {
     const { data } = await axios.get(url, { headers, params: chartParams });
 
-    const reversedData = data.reverse();
-    return reversedData;
+    const formatted = data.reverse().map((entry: Entry) => {
+      return { ...entry, sgv: calculate(entry.sgv) };
+    });
+    return formatted;
   } catch (error) {
     console.error(error);
   }

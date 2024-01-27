@@ -35,7 +35,7 @@ function App() {
     <div className='App'>
       {!isLoading && entries.length !== 0 && (
         <>
-          <CurrentGlucose sgv={calculate(entries[entries.length - 1].sgv)} />
+          <CurrentGlucose sgv={entries[entries.length - 1].sgv} />
           <Chart dataset={entries} />
         </>
       )}
