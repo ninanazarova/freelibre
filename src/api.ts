@@ -1,53 +1,85 @@
 import axios from 'axios';
 import Entry from './EntryModel';
-import Treatment from './TreatmentModel';
 import { calculate } from './helpers';
 
-const TOKEN = process.env.REACT_APP_TOKEN;
-const BASE_URL = process.env.REACT_APP_BASE_URL;
-
-//gets entries between two timestamps and limits the maximum return values to 1440
-const hoursInterval = 12;
-const to = new Date().getTime();
-const from = to - hoursInterval * 60 * 60 * 1000;
-
-const headers = {
-  'Content-Type': 'application/json',
+type AuthorizationToken = {
+  tokenString: string;
+  expiresAt: number;
 };
-const params = {
-  token: TOKEN,
-};
-const chartParams = {
-  'find[date][$gt]': from,
-  'find[date][$lte]': to,
-  count: '1400',
-  token: TOKEN,
-};
+const TOKEN = process.env.REACT_APP_TOKEN as string;
+const BASE_URL = process.env.REACT_APP_BASE_URL as string;
 
-const getEntries = async (): Promise<Entry[] | []> => {
-  const url = BASE_URL + `/entries`;
-  try {
-    const { data } = await axios.get(url, { headers, params: chartParams });
+export class Client {
+  private readonly accessToken: string;
+  private readonly baseUrl: string;
 
-    const formatted = data.reverse().map((entry: Entry) => {
-      return { ...entry, sgv: calculate(entry.sgv) };
-    });
-    return formatted;
-  } catch (error) {
-    console.error(error);
+  private authToken: AuthorizationToken;
+
+  constructor(accessToken: string, baseUrl: string) {
+    this.baseUrl = baseUrl;
+    this.accessToken = accessToken;
+    this.authToken = { tokenString: '', expiresAt: 0 };
   }
-  return [];
-};
 
-const getTreatments = async (): Promise<Treatment[] | []> => {
-  const url = BASE_URL + '/treatments?find[notes]=/exerc/i';
-  try {
-    const { data } = await axios.get(url, { headers, params });
-    return data;
-  } catch (error) {
-    console.error(error);
+  private async authorize(): Promise<AuthorizationToken | void> {
+    const url =
+      this.baseUrl + `/api/v2/authorization/request/${this.accessToken}`;
+    try {
+      const { data } = await axios.get(url);
+      return {
+        tokenString: data.token,
+        expiresAt: data.exp,
+      };
+    } catch (e) {
+      console.error(`Authorize NightScout token failed: ${e}`);
+    }
   }
-  return [];
-};
 
-export { getEntries, getTreatments };
+  private async refreshToken(): Promise<AuthorizationToken> {
+    if (this.authToken.expiresAt > Date.now()) {
+      return this.authToken;
+    }
+
+    const newToken = await this.authorize();
+    if (newToken) {
+      this.authToken = newToken;
+    }
+
+    return this.authToken;
+  }
+
+  public async getEntries(): Promise<Entry[] | []> {
+    const token = await this.refreshToken();
+
+    const hoursInterval = 12;
+    const to = new Date().getTime();
+    const from = to - hoursInterval * 60 * 60 * 1000;
+
+    const url = BASE_URL + `/api/v3/entries`;
+
+    try {
+      const {
+        data: { result },
+      } = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token.tokenString}`,
+        },
+        params: {
+          date$gte: from,
+          sort: 'date',
+        },
+      });
+
+      const formatted = result.map((entry: Entry) => {
+        return { ...entry, sgv: calculate(entry.sgv) };
+      });
+      return formatted;
+    } catch (error) {
+      console.error(error);
+    }
+    return [];
+  }
+}
+
+const client = new Client(TOKEN, BASE_URL);
+export default client;

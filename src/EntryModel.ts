@@ -1,13 +1,17 @@
 type Entry = {
-  type: string;
-  dateString: string;
+  app: string;
+  created_at: string;
   date: number;
-  sgv: number;
+  device: string;
   direction: string;
-  noise: number;
-  filtered: number;
-  unfiltered: number;
-  rssi: number;
+  identifier: string;
+  sgv: number;
+  srvCreated: number;
+  srvModified: number;
+  subject: string;
+  type: string;
+  units: string;
+  utcOffset: number;
 };
 
 export default Entry;

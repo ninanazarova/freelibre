@@ -1,26 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 
-import { getEntries, getTreatments } from './api';
+import client from './api';
 
 import CurrentGlucose from './components/CurrentGlucose';
 import Entry from './EntryModel';
-import Treatment from './TreatmentModel';
 import Chart from './components/Chart';
-import { calculate } from './helpers';
+import AddTreatmentButton from './components/AddTreatmentButton';
 
 function App() {
   const [entries, setEntries] = useState<Entry[] | []>([]);
-  const [treatments, setTreatments] = useState<Treatment[] | null>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchDataOnLoad = async () => {
       try {
-        const entries = await getEntries();
-        const treatments = await getTreatments();
+        const entries = await client.getEntries();
+
         setEntries(entries);
-        setTreatments(treatments);
       } catch (error) {
         console.error(error);
       } finally {
@@ -37,6 +34,7 @@ function App() {
         <>
           <CurrentGlucose sgv={entries[entries.length - 1].sgv} />
           <Chart dataset={entries} />
+          <AddTreatmentButton />
         </>
       )}
     </div>
