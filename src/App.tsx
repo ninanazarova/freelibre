@@ -6,7 +6,8 @@ import client from './api';
 import CurrentGlucose from './components/CurrentGlucose';
 import Entry from './EntryModel';
 import Chart from './components/Chart';
-import AddTreatmentButton from './components/AddTreatmentButton';
+import TreatmentMenu from './components/TreatmentMenu';
+import Alert from '@mui/joy/Alert';
 
 function App() {
   const [entries, setEntries] = useState<Entry[] | []>([]);
@@ -30,11 +31,19 @@ function App() {
 
   return (
     <div className='App'>
-      {!isLoading && entries.length !== 0 && (
+      {!isLoading && (
         <>
-          <CurrentGlucose sgv={entries[entries.length - 1].sgv} />
-          <Chart dataset={entries} />
-          <AddTreatmentButton />
+          {entries.length === 0 ? (
+            <Alert color='danger' size='lg' variant='soft'>
+              We don't get any data, sorry :(
+            </Alert>
+          ) : (
+            <>
+              <CurrentGlucose sgv={entries[entries.length - 1].sgv} />
+              <Chart dataset={entries} />
+              <TreatmentMenu />
+            </>
+          )}
         </>
       )}
     </div>

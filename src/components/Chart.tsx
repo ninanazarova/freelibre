@@ -14,7 +14,7 @@ const Chart = (props: { dataset: Entry[] }) => {
       yAxis={[
         {
           min: 0,
-          max: 25,
+          max: 20,
           tickMinStep: 5,
           valueFormatter: (v: number) => v.toString(),
         },
