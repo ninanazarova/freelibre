@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import './App.css';
 
 import client from './api';
 
@@ -30,7 +29,7 @@ function App() {
   }, []);
 
   return (
-    <div className='App'>
+    <div>
       {!isLoading && (
         <>
           {entries.length === 0 ? (
