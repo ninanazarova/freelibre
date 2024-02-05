@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  freelibre:
+    image: freelibre
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      REACT_APP_TOKEN: $NIGHTSCOUT_API_TOKEN
+      REACT_APP_BASE_URL: $NIGHTSCOUT_URL
+    ports:
+      - 3000:3000
