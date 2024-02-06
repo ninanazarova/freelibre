@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { LineChart } from '@mui/x-charts/LineChart';
 import Entry from '../EntryModel';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import Box from '@mui/joy/Box';
 
 const Chart = (props: { dataset: Entry[] }) => {
@@ -23,7 +23,7 @@ const Chart = (props: { dataset: Entry[] }) => {
         {
           dataKey: 'date',
           scaleType: 'utc',
-          valueFormatter: (v) => format(v, 'HH:00'),
+          valueFormatter: (v) => dayjs(v).format('HH:00'),
         },
       ]}
       series={[
@@ -48,7 +48,7 @@ const Chart = (props: { dataset: Entry[] }) => {
                 props.dataIndex ? dataset[props.dataIndex].sgv : 'no Data'
               }`}
               <hr />
-              {format(props.axisValue, 'HH:mm:ss')}
+              {dayjs(props.axisValue).format('HH:mm:ss')}
             </Box>
           );
         },
