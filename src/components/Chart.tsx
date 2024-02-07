@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { LineChart } from '@mui/x-charts/LineChart';
-import Entry from '../EntryModel';
+import Entry from '../models/EntryModel';
 import dayjs from 'dayjs';
 import Box from '@mui/joy/Box';
 

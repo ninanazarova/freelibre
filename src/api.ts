@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Entry from './EntryModel';
+import Entry from './models/EntryModel';
 import { calculate } from './helpers';
 
 type AuthorizationToken = {
