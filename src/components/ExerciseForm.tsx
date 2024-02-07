@@ -7,6 +7,10 @@ import {
   Radio,
 } from '@mui/joy';
 
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import 'dayjs/locale/de';
+
 type Props = {};
 
 const ExerciseForm = (props: Props) => {
@@ -26,6 +30,12 @@ const ExerciseForm = (props: Props) => {
           <Radio value='now' label='Now' />
           <Radio value='other' label='Other' />
         </RadioGroup>
+      </FormControl>
+      <FormControl>
+        <FormLabel>Date and time</FormLabel>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='de'>
+          <DateTimePicker format='DD.MM.YYYY HH:mm' ampm={false} />
+        </LocalizationProvider>
       </FormControl>
     </>
   );

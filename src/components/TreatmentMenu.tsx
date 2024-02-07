@@ -6,17 +6,19 @@ import Dropdown from '@mui/joy/Dropdown';
 import { useState } from 'react';
 
 import ExerciseForm from './ExerciseForm';
-import { ModalDialog } from '@mui/joy';
+import { ModalDialog, ModalClose, Modal } from '@mui/joy';
 
 const TreatmentMenu = () => {
+  const [open, setOpen] = useState<boolean>(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState<string | null>(null);
 
   const handleMenuItemClick = (menuItem: string) => {
     setSelectedMenuItem(menuItem);
+    setOpen(true);
   };
 
   return (
-    <>
+    <div className='mx-8 flex justify-end'>
       <Dropdown>
         <MenuButton variant='soft' color='primary' size='lg'>
           <AddIcon />
@@ -42,11 +44,14 @@ const TreatmentMenu = () => {
       </Dropdown>
 
       {selectedMenuItem !== null && (
-        <ModalDialog size='lg'>
-          {selectedMenuItem === 'ExerciseForm' && <ExerciseForm />}
-        </ModalDialog>
+        <Modal open={open} onClose={() => setOpen(false)}>
+          <ModalDialog size='lg'>
+            <ModalClose />
+            {selectedMenuItem === 'ExerciseForm' && <ExerciseForm />}
+          </ModalDialog>
+        </Modal>
       )}
-    </>
+    </div>
   );
 };
 
