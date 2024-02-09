@@ -40,9 +40,9 @@ function App() {
             <>
               <CurrentGlucose sgv={entries[entries.length - 1].sgv} />
               <Chart dataset={entries} />
-              <TreatmentMenu />
             </>
           )}
+          <TreatmentMenu />
         </>
       )}
     </div>
