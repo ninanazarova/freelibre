@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import './App.css';
 
 import client from './api';
 
 import CurrentGlucose from './components/CurrentGlucose';
-import Entry from './EntryModel';
+import Entry from './models/EntryModel';
 import Chart from './components/Chart';
 import TreatmentMenu from './components/TreatmentMenu';
 import Alert from '@mui/joy/Alert';
@@ -30,7 +29,7 @@ function App() {
   }, []);
 
   return (
-    <div className='App'>
+    <div>
       {!isLoading && (
         <>
           {entries.length === 0 ? (
@@ -41,9 +40,9 @@ function App() {
             <>
               <CurrentGlucose sgv={entries[entries.length - 1].sgv} />
               <Chart dataset={entries} />
-              <TreatmentMenu />
             </>
           )}
+          <TreatmentMenu />
         </>
       )}
     </div>
