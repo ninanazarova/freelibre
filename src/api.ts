@@ -1,11 +1,19 @@
 import axios from 'axios';
 import Entry from './models/EntryModel';
 import { calculate } from './helpers';
+import Exercise from './models/ExerciseModel';
 
 type AuthorizationToken = {
   tokenString: string;
   expiresAt: number;
 };
+type Response = {
+  status: number;
+  identifier?: string;
+  isDeduplication?: boolean;
+  deduplicatedIdentifier?: string;
+};
+
 const TOKEN = process.env.REACT_APP_TOKEN as string;
 const BASE_URL = process.env.REACT_APP_BASE_URL as string;
 
@@ -22,8 +30,7 @@ export class Client {
   }
 
   private async authorize(): Promise<AuthorizationToken | void> {
-    const url =
-      this.baseUrl + `/api/v2/authorization/request/${this.accessToken}`;
+    const url = this.baseUrl + `/api/v2/authorization/request/${this.accessToken}`;
     try {
       const { data } = await axios.get(url);
       return {
@@ -78,6 +85,21 @@ export class Client {
       console.error(error);
     }
     return [];
+  }
+
+  public async postTreatment(formData: Exercise): Promise<Response | undefined> {
+    const url = BASE_URL + `/api/v3/treatments`;
+
+    try {
+      const response = await axios.post(url, formData, {
+        headers: { Authorization: `Bearer ${this.authToken.tokenString}` },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+    return undefined;
   }
 }
 
