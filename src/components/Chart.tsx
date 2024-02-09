@@ -44,9 +44,7 @@ const Chart = (props: { dataset: Entry[] }) => {
                 border: '1px solid grey',
               }}
             >
-              {`Data value: ${
-                props.dataIndex ? dataset[props.dataIndex].sgv : 'no Data'
-              }`}
+              {`Data value: ${props.dataIndex ? dataset[props.dataIndex].sgv : 'no Data'}`}
               <hr />
               {dayjs(props.axisValue).format('HH:mm:ss')}
             </Box>
