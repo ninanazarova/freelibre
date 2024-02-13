@@ -6,7 +6,7 @@ import Dropdown from '@mui/joy/Dropdown';
 import { useState } from 'react';
 
 import ExerciseForm from './ExerciseForm';
-import { ModalDialog, ModalClose, Modal } from '@mui/joy';
+import { ModalDialog, ModalClose, Modal, Typography } from '@mui/joy';
 type Props = {
   onShowAlert: (message: string) => void;
 };
@@ -42,10 +42,25 @@ const TreatmentMenu = ({ onShowAlert }: Props) => {
       </Dropdown>
 
       {selectedMenuItem !== null && (
-        <Modal open={open} onClose={() => setOpen(false)}>
-          <ModalDialog size='lg'>
+        <Modal
+          aria-labelledby='modal-title'
+          aria-describedby='modal-form'
+          open={open}
+          onClose={() => setOpen(false)}
+        >
+          <ModalDialog size='lg' variant='plain'>
             <ModalClose />
-            {selectedMenuItem === 'ExerciseForm' && <ExerciseForm onCloseForm={handleCloseForm} />}
+
+            {selectedMenuItem === 'ExerciseForm' && (
+              <>
+                <Typography id='modal-title' level='h2'>
+                  Exercise
+                </Typography>
+                <div id='modal-form'>
+                  <ExerciseForm onCloseForm={handleCloseForm} />
+                </div>
+              </>
+            )}
           </ModalDialog>
         </Modal>
       )}

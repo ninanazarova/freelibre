@@ -1,4 +1,4 @@
-import { FormControl, FormLabel, Input, Textarea, RadioGroup, Radio, Button } from '@mui/joy';
+import { FormControl, FormLabel, Input, Textarea, RadioGroup, Radio, Button, Box } from '@mui/joy';
 
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -7,6 +7,7 @@ import { useState } from 'react';
 import Exercise from '../models/ExerciseModel';
 
 import client from '../api';
+import { eventType } from '../models/TreatmentModel';
 
 type Props = {
   onCloseForm: (message: string) => void;
@@ -24,7 +25,7 @@ const ExerciseForm = ({ onCloseForm }: Props) => {
 
     const data: Exercise = {
       app: 'freelibre',
-      eventType: 'Exercise',
+      eventType: eventType.EXERCISE,
       duration: duration === '' ? 0 : +duration,
       notes: notes,
       date: picker === null ? new Date().toISOString() : picker?.toISOString(),
@@ -54,15 +55,16 @@ const ExerciseForm = ({ onCloseForm }: Props) => {
           value={duration}
         />
       </FormControl>
-      <FormControl>
+      <FormControl sx={{ mt: 2 }}>
         <FormLabel>Notes</FormLabel>
         <Textarea
-          placeholder='Anything about your exercise moments'
+          minRows={4}
+          placeholder='Anything about your exercise moments...'
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />
       </FormControl>
-      <FormControl>
+      <FormControl sx={{ mt: 2 }}>
         <FormLabel>Event time</FormLabel>
         <RadioGroup
           defaultValue='now'
@@ -87,9 +89,11 @@ const ExerciseForm = ({ onCloseForm }: Props) => {
           </LocalizationProvider>
         </FormControl>
       )}
-      <Button loading={isLoading} type='submit'>
-        Send
-      </Button>
+      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button loading={isLoading} type='submit'>
+          Send
+        </Button>
+      </Box>
     </form>
   );
 };
