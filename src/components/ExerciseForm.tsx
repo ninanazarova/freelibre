@@ -8,18 +8,17 @@ import Exercise from '../models/ExerciseModel';
 
 import client from '../api';
 
-const ExerciseForm = () => {
+type Props = {
+  onCloseForm: (message: string) => void;
+};
+
+const ExerciseForm = ({ onCloseForm }: Props) => {
   const [duration, setDuration] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
   const [radio, setRadio] = useState('now');
   const [picker, setPicker] = useState<Date | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRadio(event.target.value);
-  };
-  const handlePickerChange = (newValue: Date | null) => {
-    setPicker(newValue);
-  };
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -31,8 +30,16 @@ const ExerciseForm = () => {
       date: picker === null ? new Date().toISOString() : picker?.toISOString(),
     };
 
-    const response = await client.postTreatment(data);
-    console.log('hallo from form', response);
+    try {
+      setIsLoading(true);
+      const response = await client.postTreatment(data);
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsLoading(false);
+      onCloseForm('Your exercise was added successfully!!!');
+    }
   };
 
   return (
@@ -40,7 +47,7 @@ const ExerciseForm = () => {
       <FormControl>
         <FormLabel>Duration</FormLabel>
         <Input
-          onChange={(event) => setDuration(event.target.value)}
+          onChange={(e) => setDuration(e.target.value)}
           placeholder='In minutes'
           slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
           type='number'
@@ -52,7 +59,7 @@ const ExerciseForm = () => {
         <Textarea
           placeholder='Anything about your exercise moments'
           value={notes}
-          onChange={(event) => setNotes(event.target.value)}
+          onChange={(e) => setNotes(e.target.value)}
         />
       </FormControl>
       <FormControl>
@@ -60,7 +67,7 @@ const ExerciseForm = () => {
         <RadioGroup
           defaultValue='now'
           name='radio-buttons-group'
-          onChange={handleRadioChange}
+          onChange={(e) => setRadio(e.target.value)}
           orientation='horizontal'
         >
           <Radio value='now' label='Now' />
@@ -70,17 +77,19 @@ const ExerciseForm = () => {
       {radio === 'other' && (
         <FormControl>
           <FormLabel>Date and time</FormLabel>
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='de'>
+          <LocalizationProvider adapterLocale='de' dateAdapter={AdapterDayjs}>
             <DateTimePicker
               ampm={false}
               format='DD.MM.YYYY HH:mm'
               value={picker}
-              onChange={handlePickerChange}
+              onChange={(newValue) => setPicker(newValue)}
             />
           </LocalizationProvider>
         </FormControl>
       )}
-      <Button type='submit'>Send</Button>
+      <Button loading={isLoading} type='submit'>
+        Send
+      </Button>
     </form>
   );
 };

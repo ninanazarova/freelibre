@@ -7,8 +7,11 @@ import { useState } from 'react';
 
 import ExerciseForm from './ExerciseForm';
 import { ModalDialog, ModalClose, Modal } from '@mui/joy';
+type Props = {
+  onShowAlert: (message: string) => void;
+};
 
-const TreatmentMenu = () => {
+const TreatmentMenu = ({ onShowAlert }: Props) => {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState<string | null>(null);
 
@@ -17,29 +20,24 @@ const TreatmentMenu = () => {
     setOpen(true);
   };
 
+  const handleCloseForm = (message: string) => {
+    setOpen(false);
+    onShowAlert(message);
+  };
+
   return (
     <div className='mx-8 flex justify-end'>
       <Dropdown>
-        <MenuButton variant='soft' color='primary' size='lg'>
+        <MenuButton variant='soft' color='primary'>
           <AddIcon />
         </MenuButton>
 
-        <Menu placement='bottom-end' size='lg'>
-          <MenuItem onClick={() => handleMenuItemClick('component1')}>
-            Food
-          </MenuItem>
-          <MenuItem onClick={() => handleMenuItemClick('component2')}>
-            Rapid-acting
-          </MenuItem>
-          <MenuItem onClick={() => handleMenuItemClick('component3')}>
-            Long-acting
-          </MenuItem>
-          <MenuItem onClick={() => handleMenuItemClick('ExerciseForm')}>
-            Exercise
-          </MenuItem>
-          <MenuItem onClick={() => handleMenuItemClick('component4')}>
-            Note
-          </MenuItem>
+        <Menu placement='bottom-end'>
+          <MenuItem onClick={() => handleMenuItemClick('component1')}>Food</MenuItem>
+          <MenuItem onClick={() => handleMenuItemClick('component2')}>Rapid-acting</MenuItem>
+          <MenuItem onClick={() => handleMenuItemClick('component3')}>Long-acting</MenuItem>
+          <MenuItem onClick={() => handleMenuItemClick('ExerciseForm')}>Exercise</MenuItem>
+          <MenuItem onClick={() => handleMenuItemClick('component4')}>Note</MenuItem>
         </Menu>
       </Dropdown>
 
@@ -47,7 +45,7 @@ const TreatmentMenu = () => {
         <Modal open={open} onClose={() => setOpen(false)}>
           <ModalDialog size='lg'>
             <ModalClose />
-            {selectedMenuItem === 'ExerciseForm' && <ExerciseForm />}
+            {selectedMenuItem === 'ExerciseForm' && <ExerciseForm onCloseForm={handleCloseForm} />}
           </ModalDialog>
         </Modal>
       )}
