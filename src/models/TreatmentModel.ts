@@ -33,8 +33,8 @@ interface Treatment {
   enteredBy: string;
 }
 
-enum eventType {
-  FOOD = 'Meal Bolus',
+export enum eventType {
+  MEAL = 'Meal Bolus',
   RAPID_ACTING = '',
   LONG_ACTING = '',
   EXERCISE = 'Exercise',
