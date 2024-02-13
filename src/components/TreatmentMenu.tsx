@@ -6,9 +6,12 @@ import Dropdown from '@mui/joy/Dropdown';
 import { useState } from 'react';
 
 import ExerciseForm from './ExerciseForm';
-import { ModalDialog, ModalClose, Modal } from '@mui/joy';
+import { ModalDialog, ModalClose, Modal, Typography } from '@mui/joy';
+type Props = {
+  onShowAlert: (message: string) => void;
+};
 
-const TreatmentMenu = () => {
+const TreatmentMenu = ({ onShowAlert }: Props) => {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState<string | null>(null);
 
@@ -17,37 +20,47 @@ const TreatmentMenu = () => {
     setOpen(true);
   };
 
+  const handleCloseForm = (message: string) => {
+    setOpen(false);
+    onShowAlert(message);
+  };
+
   return (
     <div className='mx-8 flex justify-end'>
       <Dropdown>
-        <MenuButton variant='soft' color='primary' size='lg'>
+        <MenuButton variant='soft' color='primary'>
           <AddIcon />
         </MenuButton>
 
-        <Menu placement='bottom-end' size='lg'>
-          <MenuItem onClick={() => handleMenuItemClick('component1')}>
-            Food
-          </MenuItem>
-          <MenuItem onClick={() => handleMenuItemClick('component2')}>
-            Rapid-acting
-          </MenuItem>
-          <MenuItem onClick={() => handleMenuItemClick('component3')}>
-            Long-acting
-          </MenuItem>
-          <MenuItem onClick={() => handleMenuItemClick('ExerciseForm')}>
-            Exercise
-          </MenuItem>
-          <MenuItem onClick={() => handleMenuItemClick('component4')}>
-            Note
-          </MenuItem>
+        <Menu placement='bottom-end'>
+          <MenuItem onClick={() => handleMenuItemClick('component1')}>Food</MenuItem>
+          <MenuItem onClick={() => handleMenuItemClick('component2')}>Rapid-acting</MenuItem>
+          <MenuItem onClick={() => handleMenuItemClick('component3')}>Long-acting</MenuItem>
+          <MenuItem onClick={() => handleMenuItemClick('ExerciseForm')}>Exercise</MenuItem>
+          <MenuItem onClick={() => handleMenuItemClick('component4')}>Note</MenuItem>
         </Menu>
       </Dropdown>
 
       {selectedMenuItem !== null && (
-        <Modal open={open} onClose={() => setOpen(false)}>
-          <ModalDialog size='lg'>
+        <Modal
+          aria-labelledby='modal-title'
+          aria-describedby='modal-form'
+          open={open}
+          onClose={() => setOpen(false)}
+        >
+          <ModalDialog size='lg' variant='plain'>
             <ModalClose />
-            {selectedMenuItem === 'ExerciseForm' && <ExerciseForm />}
+
+            {selectedMenuItem === 'ExerciseForm' && (
+              <>
+                <Typography id='modal-title' level='h2'>
+                  Exercise
+                </Typography>
+                <div id='modal-form'>
+                  <ExerciseForm onCloseForm={handleCloseForm} />
+                </div>
+              </>
+            )}
           </ModalDialog>
         </Modal>
       )}

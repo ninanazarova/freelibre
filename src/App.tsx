@@ -7,10 +7,18 @@ import Entry from './models/EntryModel';
 import Chart from './components/Chart';
 import TreatmentMenu from './components/TreatmentMenu';
 import Alert from '@mui/joy/Alert';
+import { Snackbar } from '@mui/joy';
 
 function App() {
   const [entries, setEntries] = useState<Entry[] | []>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const handleShowAlert = (message: string) => {
+    setOpen(true);
+    setMessage(message);
+  };
 
   useEffect(() => {
     const fetchDataOnLoad = async () => {
@@ -30,6 +38,18 @@ function App() {
 
   return (
     <div>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        autoHideDuration={3000}
+        color='primary'
+        open={open}
+        onClose={() => setOpen(false)}
+        size='md'
+        variant='soft'
+      >
+        {message}
+      </Snackbar>
+
       {!isLoading && (
         <>
           {entries.length === 0 ? (
@@ -42,7 +62,7 @@ function App() {
               <Chart dataset={entries} />
             </>
           )}
-          <TreatmentMenu />
+          <TreatmentMenu onShowAlert={handleShowAlert} />
         </>
       )}
     </div>
