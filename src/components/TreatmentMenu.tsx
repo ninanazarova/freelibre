@@ -7,6 +7,7 @@ import { useState } from 'react';
 
 import ExerciseForm from './ExerciseForm';
 import { ModalDialog, ModalClose, Modal, Typography } from '@mui/joy';
+import MealForm from './MealForm';
 type Props = {
   onShowAlert: (message: string) => void;
 };
@@ -33,7 +34,7 @@ const TreatmentMenu = ({ onShowAlert }: Props) => {
         </MenuButton>
 
         <Menu placement='bottom-end'>
-          <MenuItem onClick={() => handleMenuItemClick('component1')}>Food</MenuItem>
+          <MenuItem onClick={() => handleMenuItemClick('MealForm')}>Meal</MenuItem>
           <MenuItem onClick={() => handleMenuItemClick('component2')}>Rapid-acting</MenuItem>
           <MenuItem onClick={() => handleMenuItemClick('component3')}>Long-acting</MenuItem>
           <MenuItem onClick={() => handleMenuItemClick('ExerciseForm')}>Exercise</MenuItem>
@@ -58,6 +59,16 @@ const TreatmentMenu = ({ onShowAlert }: Props) => {
                 </Typography>
                 <div id='modal-form'>
                   <ExerciseForm onCloseForm={handleCloseForm} />
+                </div>
+              </>
+            )}
+            {selectedMenuItem === 'MealForm' && (
+              <>
+                <Typography id='modal-title' level='h2'>
+                  Meal
+                </Typography>
+                <div id='modal-form'>
+                  <MealForm onCloseForm={handleCloseForm} />
                 </div>
               </>
             )}

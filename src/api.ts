@@ -2,6 +2,7 @@ import axios from 'axios';
 import Entry from './models/EntryModel';
 import { calculate } from './helpers';
 import Exercise from './models/ExerciseModel';
+import Meal from './models/MealModel';
 
 type AuthorizationToken = {
   tokenString: string;
@@ -87,7 +88,7 @@ export class Client {
     return [];
   }
 
-  public async postTreatment(formData: Exercise): Promise<Response | undefined> {
+  public async postTreatment(formData: Exercise | Meal): Promise<Response | undefined> {
     const url = BASE_URL + `/api/v3/treatments`;
 
     try {

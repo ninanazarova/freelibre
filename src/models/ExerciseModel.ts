@@ -1,7 +1,7 @@
 import { eventType } from './TreatmentModel';
 
 interface Exercise {
-  date: string; //*
+  date: string; //* ISO
   app: string; //* 'freelibre'
   eventType: eventType.EXERCISE;
   duration: number;

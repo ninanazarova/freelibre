@@ -1,7 +1,7 @@
 import { eventType } from './TreatmentModel';
 
 interface Meal {
-  date: number; //*
+  date: string; //* ISO
   app: string; //* 'freelibre'
   eventType: eventType.MEAL; //Meal Bolus
   glucose: string;
