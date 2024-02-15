@@ -37,7 +37,7 @@ function App() {
   }, []);
 
   return (
-    <div>
+    <>
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         autoHideDuration={3000}
@@ -65,7 +65,7 @@ function App() {
           <TreatmentMenu onShowAlert={handleShowAlert} />
         </>
       )}
-    </div>
+    </>
   );
 }
 

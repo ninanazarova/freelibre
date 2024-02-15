@@ -6,7 +6,7 @@ import Dropdown from '@mui/joy/Dropdown';
 import { useState } from 'react';
 
 import ExerciseForm from './ExerciseForm';
-import { ModalDialog, ModalClose, Modal, Typography } from '@mui/joy';
+import { ModalDialog, ModalClose, Modal, Typography, Box } from '@mui/joy';
 import MealForm from './MealForm';
 type Props = {
   onShowAlert: (message: string) => void;
@@ -27,7 +27,7 @@ const TreatmentMenu = ({ onShowAlert }: Props) => {
   };
 
   return (
-    <div className='mx-8 flex justify-end'>
+    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
       <Dropdown>
         <MenuButton variant='soft' color='primary'>
           <AddIcon />
@@ -62,6 +62,7 @@ const TreatmentMenu = ({ onShowAlert }: Props) => {
                 </div>
               </>
             )}
+
             {selectedMenuItem === 'MealForm' && (
               <>
                 <Typography id='modal-title' level='h2'>
@@ -75,7 +76,7 @@ const TreatmentMenu = ({ onShowAlert }: Props) => {
           </ModalDialog>
         </Modal>
       )}
-    </div>
+    </Box>
   );
 };
 

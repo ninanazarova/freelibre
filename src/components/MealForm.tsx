@@ -60,7 +60,7 @@ const MealForm = ({ onCloseForm }: Props) => {
       console.log(err);
     } finally {
       setIsLoading(false);
-      onCloseForm('Your exercise was added successfully!!!');
+      onCloseForm('Your Meal was added successfully');
     }
   };
 
@@ -70,7 +70,7 @@ const MealForm = ({ onCloseForm }: Props) => {
         <FormLabel>Glucose</FormLabel>
         <Input
           onChange={(e) => setGlucose(e.target.value)}
-          placeholder='Current measurement?'
+          placeholder='Your current measurement'
           slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
           type='number'
           value={glucose}
@@ -143,7 +143,7 @@ const MealForm = ({ onCloseForm }: Props) => {
               <Divider orientation='vertical' sx={{ ml: 1.5 }} />
             </>
           }
-          endDecorator={'g'}
+          endDecorator={'min'}
           type='number'
           value={preBolus}
         />
