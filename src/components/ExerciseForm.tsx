@@ -58,7 +58,7 @@ const ExerciseForm = ({ onCloseForm }: Props) => {
       <FormControl sx={{ mt: 2 }}>
         <FormLabel>Notes</FormLabel>
         <Textarea
-          minRows={4}
+          minRows={2}
           placeholder='Anything about your exercise moments...'
           value={notes}
           onChange={(e) => setNotes(e.target.value)}

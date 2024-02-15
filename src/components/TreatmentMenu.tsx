@@ -6,7 +6,8 @@ import Dropdown from '@mui/joy/Dropdown';
 import { useState } from 'react';
 
 import ExerciseForm from './ExerciseForm';
-import { ModalDialog, ModalClose, Modal, Typography } from '@mui/joy';
+import { ModalDialog, ModalClose, Modal, Typography, Box } from '@mui/joy';
+import MealForm from './MealForm';
 type Props = {
   onShowAlert: (message: string) => void;
 };
@@ -26,14 +27,14 @@ const TreatmentMenu = ({ onShowAlert }: Props) => {
   };
 
   return (
-    <div className='mx-8 flex justify-end'>
+    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
       <Dropdown>
         <MenuButton variant='soft' color='primary'>
           <AddIcon />
         </MenuButton>
 
         <Menu placement='bottom-end'>
-          <MenuItem onClick={() => handleMenuItemClick('component1')}>Food</MenuItem>
+          <MenuItem onClick={() => handleMenuItemClick('MealForm')}>Meal</MenuItem>
           <MenuItem onClick={() => handleMenuItemClick('component2')}>Rapid-acting</MenuItem>
           <MenuItem onClick={() => handleMenuItemClick('component3')}>Long-acting</MenuItem>
           <MenuItem onClick={() => handleMenuItemClick('ExerciseForm')}>Exercise</MenuItem>
@@ -61,10 +62,21 @@ const TreatmentMenu = ({ onShowAlert }: Props) => {
                 </div>
               </>
             )}
+
+            {selectedMenuItem === 'MealForm' && (
+              <>
+                <Typography id='modal-title' level='h2'>
+                  Meal
+                </Typography>
+                <div id='modal-form'>
+                  <MealForm onCloseForm={handleCloseForm} />
+                </div>
+              </>
+            )}
           </ModalDialog>
         </Modal>
       )}
-    </div>
+    </Box>
   );
 };
 
