@@ -10,7 +10,7 @@ import client from '../api';
 import { eventType } from '../models/TreatmentModel';
 
 type Props = {
-  onCloseForm: (message: string) => void;
+  onCloseForm: (message: string, id: string) => void;
 };
 
 const ExerciseForm = ({ onCloseForm }: Props) => {
@@ -34,12 +34,16 @@ const ExerciseForm = ({ onCloseForm }: Props) => {
     try {
       setIsLoading(true);
       const response = await client.postTreatment(data);
+
+      if (response !== undefined && response.identifier) {
+        onCloseForm('Your exercise was added successfully!!!', response.identifier);
+      }
+
       console.log(response);
     } catch (err) {
       console.log(err);
     } finally {
       setIsLoading(false);
-      onCloseForm('Your exercise was added successfully!!!');
     }
   };
 

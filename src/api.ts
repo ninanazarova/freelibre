@@ -3,10 +3,11 @@ import Entry from './models/EntryModel';
 import { calculate } from './helpers';
 import Exercise from './models/ExerciseModel';
 import Meal from './models/MealModel';
+import Treatment from './models/TreatmentModel';
 
 type AuthorizationToken = {
   tokenString: string;
-  expiresAt: number;
+  expiresAt: Date | null;
 };
 type Response = {
   status: number;
@@ -18,6 +19,13 @@ type Response = {
 const TOKEN = process.env.REACT_APP_TOKEN as string;
 const BASE_URL = process.env.REACT_APP_BASE_URL as string;
 
+function getFromTime() {
+  const hoursInterval = 12;
+  const to = new Date().getTime();
+  const from = to - hoursInterval * 60 * 60 * 1000;
+  return from;
+}
+
 export class Client {
   private readonly accessToken: string;
   private readonly baseUrl: string;
@@ -27,7 +35,7 @@ export class Client {
   constructor(accessToken: string, baseUrl: string) {
     this.baseUrl = baseUrl;
     this.accessToken = accessToken;
-    this.authToken = { tokenString: '', expiresAt: 0 };
+    this.authToken = { tokenString: '', expiresAt: null };
   }
 
   private async authorize(): Promise<AuthorizationToken | void> {
@@ -36,7 +44,7 @@ export class Client {
       const { data } = await axios.get(url);
       return {
         tokenString: data.token,
-        expiresAt: data.exp,
+        expiresAt: new Date(data.exp * 1000),
       };
     } catch (e) {
       console.error(`Authorize NightScout token failed: ${e}`);
@@ -44,7 +52,7 @@ export class Client {
   }
 
   private async refreshToken(): Promise<AuthorizationToken> {
-    if (this.authToken.expiresAt > Date.now()) {
+    if (this.authToken.expiresAt !== null && this.authToken.expiresAt > new Date()) {
       return this.authToken;
     }
 
@@ -59,10 +67,6 @@ export class Client {
   public async getEntries(): Promise<Entry[] | []> {
     const token = await this.refreshToken();
 
-    const hoursInterval = 12;
-    const to = new Date().getTime();
-    const from = to - hoursInterval * 60 * 60 * 1000;
-
     const url = BASE_URL + `/api/v3/entries`;
 
     try {
@@ -73,7 +77,7 @@ export class Client {
           Authorization: `Bearer ${token.tokenString}`,
         },
         params: {
-          date$gte: from,
+          date$gte: getFromTime(),
           sort: 'date',
         },
       });
@@ -86,6 +90,51 @@ export class Client {
       console.error(error);
     }
     return [];
+  }
+
+  public async getTreatments(): Promise<Treatment[] | []> {
+    const token = await this.refreshToken();
+
+    const url = BASE_URL + `/api/v3/treatments`;
+
+    try {
+      const {
+        data: { result },
+      } = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token.tokenString}`,
+        },
+        params: {
+          date$gte: getFromTime(),
+          sort$desc: 'date',
+        },
+      });
+
+      return result;
+    } catch (error) {
+      console.error(error);
+    }
+    return [];
+  }
+  public async getTreatment(id: string): Promise<Treatment | null> {
+    const token = await this.refreshToken();
+
+    const url = BASE_URL + `/api/v3/treatments/${id}`;
+
+    try {
+      const {
+        data: { result },
+      } = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token.tokenString}`,
+        },
+      });
+
+      return result;
+    } catch (error) {
+      console.error(error);
+    }
+    return null;
   }
 
   public async postTreatment(formData: Exercise | Meal): Promise<Response | undefined> {
