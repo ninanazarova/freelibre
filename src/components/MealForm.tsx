@@ -21,7 +21,7 @@ import client from '../api';
 import { eventType } from '../models/TreatmentModel';
 
 type Props = {
-  onCloseForm: (message: string) => void;
+  onCloseForm: (message: string, id: string) => void;
 };
 
 const MealForm = ({ onCloseForm }: Props) => {
@@ -56,11 +56,13 @@ const MealForm = ({ onCloseForm }: Props) => {
       setIsLoading(true);
       const response = await client.postTreatment(data);
       console.log(response);
+      if (response !== undefined && response.identifier) {
+        onCloseForm('Your Meal was added successfully', response.identifier);
+      }
     } catch (err) {
       console.log(err);
     } finally {
       setIsLoading(false);
-      onCloseForm('Your Meal was added successfully');
     }
   };
 

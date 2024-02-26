@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from 'react';
+import { Alert, Box, Snackbar } from '@mui/joy';
 
 import client from './api';
-
-import CurrentGlucose from './components/CurrentGlucose';
 import Entry from './models/EntryModel';
 import Chart from './components/Chart';
-import TreatmentMenu from './components/TreatmentMenu';
-import Alert from '@mui/joy/Alert';
-import { Snackbar } from '@mui/joy';
+import CurrentGlucose from './components/CurrentGlucose';
+import RecentTreatments from './components/RecentTreatments';
+import BottomNavigation from './components/BottomNavigation';
 
 function App() {
   const [entries, setEntries] = useState<Entry[] | []>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [id, setId] = useState<null | string>(null);
 
-  const handleShowAlert = (message: string) => {
+  const handleShowAlert = (message: string, id: string) => {
     setOpen(true);
     setMessage(message);
+    setId(id);
   };
 
   useEffect(() => {
@@ -51,7 +52,7 @@ function App() {
       </Snackbar>
 
       {!isLoading && (
-        <>
+        <Box minHeight={'100vh'} pb={'82px'}>
           {entries.length === 0 ? (
             <Alert color='danger' size='lg' variant='soft'>
               We don't get any data, sorry :(
@@ -62,9 +63,10 @@ function App() {
               <Chart dataset={entries} />
             </>
           )}
-          <TreatmentMenu onShowAlert={handleShowAlert} />
-        </>
+          <RecentTreatments id={id} />
+        </Box>
       )}
+      <BottomNavigation onShowAlert={handleShowAlert} />
     </>
   );
 }
