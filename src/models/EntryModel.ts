@@ -1,17 +1,19 @@
 type Entry = {
-  app: string;
-  created_at: string;
   date: number;
-  device: string;
-  direction: string;
+  direction: Direction;
   identifier: string;
   sgv: number;
-  srvCreated: number;
-  srvModified: number;
-  subject: string;
-  type: string;
-  units: string;
-  utcOffset: number;
+  mbg: number | null;
 };
+
+export enum Direction {
+  DoubleDown = 'DoubleDown',
+  SingleDown = 'SingleDown',
+  FortyFiveDown = 'FortyFiveDown',
+  Flat = 'Flat',
+  FortyFiveUp = 'FortyFiveUp',
+  SingleUp = 'SingleUp',
+  DoubleUp = 'DoubleUp',
+}
 
 export default Entry;
