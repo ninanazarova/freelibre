@@ -79,13 +79,16 @@ export class Client {
         params: {
           date$gte: getFromTime(),
           sort: 'date',
+          fields: 'date,direction,identifier,sgv',
         },
       });
 
-      const formatted = result.map((entry: Entry) => {
-        return { ...entry, sgv: calculate(entry.sgv) };
-      });
-      return formatted;
+      const entries = result.map((entry: Entry) => ({
+        ...entry,
+        mbg: calculate(entry.sgv),
+      }));
+
+      return entries;
     } catch (error) {
       console.error(error);
     }

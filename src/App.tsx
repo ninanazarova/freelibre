@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { StrictMode, useEffect, useState } from 'react';
 import { Alert, Box, Snackbar } from '@mui/joy';
 
 import client from './api';
@@ -37,8 +37,10 @@ function App() {
     fetchDataOnLoad();
   }, []);
 
+  const lastEntry = entries[entries.length - 1];
+
   return (
-    <>
+    <StrictMode>
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         autoHideDuration={3000}
@@ -59,7 +61,7 @@ function App() {
             </Alert>
           ) : (
             <>
-              <CurrentGlucose sgv={entries[entries.length - 1].sgv} />
+              <CurrentGlucose direction={lastEntry.direction} mbg={lastEntry.mbg as number} />
               <Chart dataset={entries} />
             </>
           )}
@@ -67,7 +69,7 @@ function App() {
         </Box>
       )}
       <BottomNavigation onShowAlert={handleShowAlert} />
-    </>
+    </StrictMode>
   );
 }
 
