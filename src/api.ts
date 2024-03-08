@@ -94,7 +94,30 @@ export class Client {
     }
     return [];
   }
+  public async searchTreatments(searchString: string): Promise<Treatment[] | []> {
+    const token = await this.refreshToken();
 
+    const url = BASE_URL + `/api/v3/treatments`;
+
+    try {
+      const {
+        data: { result },
+      } = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token.tokenString}`,
+        },
+        params: {
+          notes$re: searchString,
+          sort$desc: 'date',
+        },
+      });
+
+      return result;
+    } catch (error) {
+      console.error(error);
+    }
+    return [];
+  }
   public async getTreatments(): Promise<Treatment[] | []> {
     const token = await this.refreshToken();
 
