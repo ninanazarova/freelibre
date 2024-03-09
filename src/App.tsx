@@ -72,7 +72,7 @@ function App() {
       </Snackbar>
 
       {!isLoading && (
-        <Box minHeight={'100vh'} pb={'82px'}>
+        <Box minHeight={'100vh'} pb={'82px'} bgcolor={'#f3f2f8'}>
           {entries.length === 0 ? (
             <Alert color='danger' size='lg' variant='soft'>
               We don't get any data, sorry :(

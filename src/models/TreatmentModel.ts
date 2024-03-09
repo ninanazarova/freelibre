@@ -35,8 +35,8 @@ interface Treatment {
 
 export enum eventType {
   MEAL = 'Meal Bolus',
-  RAPID_ACTING = '',
-  LONG_ACTING = '',
+  RAPID_ACTING = 'Correction Bolus',
+  LONG_ACTING = 'Carb Correction',
   EXERCISE = 'Exercise',
 }
 

@@ -14,7 +14,6 @@ import {
   useDrawingArea,
   useYScale,
 } from '@mui/x-charts';
-import { useEffect, useState } from 'react';
 
 const NormalRange = () => {
   const low = 5;
@@ -58,49 +57,39 @@ type Props = {
   entries: Entry[];
   treatments: Treatment[];
 };
+
 const Chart = ({ entries, treatments }: Props) => {
-  const [x, setX] = useState<number[]>([]);
-  const [entryPoints, setEntryPoints] = useState<(number | null)[]>([]);
-  const [treatPoints, setTreatPoints] = useState<(number | null)[]>([]);
+  const x: number[] = [];
+  const eSerie: Array<null | number> = [];
+  const tSerie: Array<null | number> = [];
 
-  useEffect(() => {
-    const x: number[] = [];
-    const eSerie: Array<null | number> = [];
-    const tSerie: Array<null | number> = [];
-    const makeDataset = () => {
-      const merged = merge(entries, treatments);
-      for (let i = 0; i < merged.length; i++) {
-        if (merged[i].isTreatment) {
-          x.push(merged[i].date);
-          // TODO: check which mbg value to push i+1 or i-1 and check if not null
-          tSerie.push(merged[i + 1].mbg);
-          eSerie.push(merged[i + 1].mbg);
-        } else {
-          x.push(merged[i].date);
-          tSerie.push(null);
-          eSerie.push(merged[i].mbg);
-        }
+  const merged = merge(entries, treatments);
+  for (let i = 0; i < merged.length; i++) {
+    if (merged[i].isTreatment) {
+      x.push(merged[i].date);
+      // TODO: check which mbg value to push i+1 or i-1 and check if not null
+      if (merged[i + 1] !== undefined) {
+        tSerie.push(merged[i + 1].mbg);
+        eSerie.push(merged[i + 1].mbg);
+      } else {
+        tSerie.push(merged[i - 1].mbg);
+        eSerie.push(merged[i - 1].mbg);
       }
-    };
-    makeDataset();
-
-    setX(x);
-    setEntryPoints(eSerie);
-    setTreatPoints(tSerie);
-  }, [entries, treatments]);
+    } else {
+      x.push(merged[i].date);
+      tSerie.push(null);
+      eSerie.push(merged[i].mbg);
+    }
+  }
 
   return (
     <ResponsiveChartContainer
+      sx={{ bgcolor: 'white' }}
       height={400}
-      margin={{ top: 20, bottom: 30, left: 30, right: 30 }}
+      margin={{ top: 30, bottom: 50, left: 30, right: 30 }}
       series={[
-        { type: 'line', data: entryPoints, color: 'black', showMark: false },
-        {
-          type: 'line',
-          data: treatPoints,
-          color: 'red',
-          showMark: true,
-        },
+        { type: 'line', data: eSerie, color: 'black', showMark: false },
+        { type: 'line', data: tSerie, color: 'red', showMark: true },
       ]}
       xAxis={[
         {
@@ -114,7 +103,7 @@ const Chart = ({ entries, treatments }: Props) => {
         {
           id: 'glucose',
           min: 3,
-          max: 21,
+          max: 20,
           valueFormatter: (v: number) => v.toString(),
         },
       ]}
