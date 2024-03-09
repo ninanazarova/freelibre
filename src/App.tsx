@@ -7,26 +7,44 @@ import Chart from './components/Chart';
 import CurrentGlucose from './components/CurrentGlucose';
 import RecentTreatments from './components/RecentTreatments';
 import BottomNavigation from './components/BottomNavigation';
+import Treatment from './models/TreatmentModel';
 
 function App() {
   const [entries, setEntries] = useState<Entry[] | []>([]);
+  const [treatments, setTreatments] = useState<Treatment[] | []>([]);
+
   const [isLoading, setIsLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const [id, setId] = useState<null | string>(null);
 
+  const getNewTreatment = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const treatment = await client.getTreatment(id);
+      if (treatment !== null) {
+        //TODO: insert by datetime instead of push to the top
+        setTreatments((ts) => [treatment, ...ts]);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleShowAlert = (message: string, id: string) => {
     setOpen(true);
     setMessage(message);
-    setId(id);
+    getNewTreatment(id);
   };
 
   useEffect(() => {
     const fetchDataOnLoad = async () => {
       try {
         const entries = await client.getEntries();
+        const treatments = await client.getTreatments();
 
         setEntries(entries);
+        setTreatments(treatments);
       } catch (error) {
         console.error(error);
       } finally {
@@ -54,7 +72,7 @@ function App() {
       </Snackbar>
 
       {!isLoading && (
-        <Box minHeight={'100vh'} pb={'82px'}>
+        <Box minHeight={'100vh'} pb={'82px'} bgcolor={'#f3f2f8'}>
           {entries.length === 0 ? (
             <Alert color='danger' size='lg' variant='soft'>
               We don't get any data, sorry :(
@@ -62,10 +80,10 @@ function App() {
           ) : (
             <>
               <CurrentGlucose direction={lastEntry.direction} mbg={lastEntry.mbg as number} />
-              <Chart dataset={entries} />
+              <Chart treatments={treatments.slice().reverse()} entries={entries} />
+              <RecentTreatments treatments={treatments} />
             </>
           )}
-          <RecentTreatments id={id} />
         </Box>
       )}
       <BottomNavigation onShowAlert={handleShowAlert} />
