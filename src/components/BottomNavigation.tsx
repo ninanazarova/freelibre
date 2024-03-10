@@ -6,16 +6,25 @@ import Search from '@mui/icons-material/Search';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TreatmentModal from './TreatmentModal';
 import client from '../api';
+import RecentTreatments from './RecentTreatments';
+import Treatment from '../models/TreatmentModel';
+import { Link } from 'react-router-dom';
 
 type Props = {
   onShowAlert: (message: string, id: string) => void;
 };
-
+const enum Status {
+  WAITING = 'waiting',
+  LOADING = 'loading',
+  DONE = 'done',
+}
 const BottomNavigation = ({ onShowAlert }: Props) => {
   const [openModal, setOpenModal] = useState(false);
   const [index, setIndex] = useState(-1);
   const [formName, setFormName] = useState<null | string>(null);
   const [searchString, setSearchString] = useState('');
+  const [status, setStatus] = useState(Status.WAITING);
+  const [results, setResults] = useState<Treatment[]>([]);
 
   const handleButtonClick = (formName: string) => {
     setFormName(formName);
@@ -25,13 +34,13 @@ const BottomNavigation = ({ onShowAlert }: Props) => {
 
   const handleSearchClick = async () => {
     try {
-      // setIsLoading(true);
-      const response = await client.searchTreatments(searchString);
-      console.log(response);
+      setStatus(Status.LOADING);
+      const results = await client.searchTreatments(searchString);
+      setResults(results);
     } catch (err) {
       console.log(err);
     } finally {
-      // setIsLoading(false);
+      setStatus(Status.DONE);
     }
   };
 
@@ -95,20 +104,32 @@ const BottomNavigation = ({ onShowAlert }: Props) => {
               <Input onChange={(e) => setSearchString(e.target.value)} />
               <Button onClick={() => handleSearchClick()}>Search</Button>
             </Box>
+            {status === Status.DONE && (
+              <Box>
+                <RecentTreatments treatments={results} />
+              </Box>
+            )}
           </TabPanel>
           <TabList disableUnderline size='lg' sx={{ mx: 'auto', mb: 3 }}>
-            <Tab disableIndicator>
-              <HomeRoundedIcon />
-            </Tab>
+            <Link to='/'>
+              <Tab disableIndicator>
+                <HomeRoundedIcon />
+              </Tab>
+            </Link>
+
             <Tab disableIndicator>
               <AddIcon />
             </Tab>
-            <Tab disableIndicator>
-              <Search />
-            </Tab>
-            <Tab disableIndicator>
-              <SettingsIcon />
-            </Tab>
+            <Link to='search'>
+              <Tab disableIndicator>
+                <Search />
+              </Tab>
+            </Link>
+            <Link to='settings'>
+              <Tab disableIndicator>
+                <SettingsIcon />
+              </Tab>
+            </Link>
           </TabList>
         </Tabs>
       </Box>
