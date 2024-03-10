@@ -1,25 +1,30 @@
-import React, { StrictMode, useEffect, useState } from 'react';
-import { Alert, Box, Snackbar } from '@mui/joy';
+import { Box, Alert, Snackbar } from '@mui/joy';
+import Chart from '../components/Chart';
+import CurrentGlucose from '../components/CurrentGlucose';
+import RecentTreatments from '../components/RecentTreatments';
+import Entry from '../models/EntryModel';
+import Treatment from '../models/TreatmentModel';
+import { useEffect, useState } from 'react';
+import client from '../api';
+import { useMessage, useNewId } from '../routes/Root';
 
-import client from './api';
-import Entry from './models/EntryModel';
-import Chart from './components/Chart';
-import CurrentGlucose from './components/CurrentGlucose';
-import RecentTreatments from './components/RecentTreatments';
-import BottomNavigation from './components/BottomNavigation';
-import Treatment from './models/TreatmentModel';
+const enum Status {
+  WAITING = 'waiting',
+  LOADING = 'loading',
+  DONE = 'done',
+}
 
-function App() {
+const Index = () => {
   const [entries, setEntries] = useState<Entry[] | []>([]);
   const [treatments, setTreatments] = useState<Treatment[] | []>([]);
-
-  const [isLoading, setIsLoading] = useState(true);
+  const [status, setStatus] = useState(Status.WAITING);
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState('');
+  const { message } = useMessage();
+  const { id } = useNewId();
 
   const getNewTreatment = async (id: string) => {
     try {
-      setIsLoading(true);
+      setStatus(Status.LOADING);
       const treatment = await client.getTreatment(id);
       if (treatment !== null) {
         //TODO: insert by datetime instead of push to the top
@@ -28,18 +33,19 @@ function App() {
     } catch (error) {
       console.error(error);
     } finally {
-      setIsLoading(false);
+      setStatus(Status.DONE);
     }
   };
-  const handleShowAlert = (message: string, id: string) => {
-    setOpen(true);
-    setMessage(message);
-    getNewTreatment(id);
-  };
+
+  useEffect(() => {
+    if (message !== null) setOpen(true);
+    if (id !== null) getNewTreatment(id);
+  }, [message, id]);
 
   useEffect(() => {
     const fetchDataOnLoad = async () => {
       try {
+        setStatus(Status.LOADING);
         const entries = await client.getEntries();
         const treatments = await client.getTreatments();
 
@@ -48,7 +54,7 @@ function App() {
       } catch (error) {
         console.error(error);
       } finally {
-        setIsLoading(false);
+        setStatus(Status.DONE);
       }
     };
 
@@ -56,9 +62,8 @@ function App() {
   }, []);
 
   const lastEntry = entries[entries.length - 1];
-
   return (
-    <StrictMode>
+    <>
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         autoHideDuration={3000}
@@ -71,7 +76,8 @@ function App() {
         {message}
       </Snackbar>
 
-      {!isLoading && (
+      {status === Status.LOADING && <span>loading...</span>}
+      {status === Status.DONE && (
         <Box minHeight={'100vh'} pb={'82px'} bgcolor={'#f3f2f8'}>
           {entries.length === 0 ? (
             <Alert color='danger' size='lg' variant='soft'>
@@ -86,9 +92,8 @@ function App() {
           )}
         </Box>
       )}
-      <BottomNavigation onShowAlert={handleShowAlert} />
-    </StrictMode>
+    </>
   );
-}
+};
 
-export default App;
+export default Index;

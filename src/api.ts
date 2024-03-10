@@ -107,7 +107,7 @@ export class Client {
           Authorization: `Bearer ${token.tokenString}`,
         },
         params: {
-          notes$re: searchString,
+          notes$re: encodeURIComponent(`${searchString}`),
           sort$desc: 'date',
         },
       });
