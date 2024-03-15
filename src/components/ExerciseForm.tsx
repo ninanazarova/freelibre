@@ -1,104 +1,92 @@
-import { FormControl, FormLabel, Input, Textarea, RadioGroup, Radio, Button, Box } from '@mui/joy';
+import {
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  RadioGroup,
+  Radio,
+  Button,
+  Stack,
+} from '@mui/joy';
 
+import { ActionFunctionArgs, Form, redirect } from 'react-router-dom';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/de';
-import { useState } from 'react';
-import Exercise from '../models/ExerciseModel';
-
+import dayjs from 'dayjs';
 import client from '../api';
+import Exercise from '../models/ExerciseModel';
 import { eventType } from '../models/TreatmentModel';
+import { useOnShowAlert } from '../routes/Root';
+import { useState } from 'react';
 
-type Props = {
-  onCloseForm: (message: string, id: string) => void;
-};
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const dateIsNow = formData.get('isNow');
+  const duration = formData.get('duration');
 
-const ExerciseForm = ({ onCloseForm }: Props) => {
-  const [duration, setDuration] = useState<string>('');
-  const [notes, setNotes] = useState<string>('');
-  const [radio, setRadio] = useState('now');
-  const [picker, setPicker] = useState<Date | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const data: Exercise = {
-      app: 'freelibre',
-      eventType: eventType.EXERCISE,
-      duration: duration === '' ? 0 : +duration,
-      notes: notes,
-      date: picker === null ? new Date().toISOString() : picker?.toISOString(),
-    };
-
-    try {
-      setIsLoading(true);
-      const response = await client.postTreatment(data);
-
-      if (response !== undefined && response.identifier) {
-        onCloseForm('Your exercise was added successfully!!!', response.identifier);
-      }
-
-      console.log(response);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setIsLoading(false);
-    }
+  const data: Exercise = {
+    app: 'freelibre',
+    eventType: eventType.EXERCISE,
+    duration: duration === '' ? 0 : +(duration as string),
+    notes: formData.get('notes') as string,
+    date:
+      dateIsNow === 'now'
+        ? new Date().toISOString()
+        : dayjs(formData.get('datetime') as string, 'DD.MM.YYYY HH:mm').toISOString(),
   };
+  await client.postTreatment(data);
+  return redirect('/');
+}
+
+const ExerciseForm = () => {
+  const [radio, setRadio] = useState('now');
+  const { onShowAlert } = useOnShowAlert();
 
   return (
-    <form onSubmit={(e) => handleFormSubmit(e)}>
-      <FormControl>
-        <FormLabel>Duration</FormLabel>
-        <Input
-          onChange={(e) => setDuration(e.target.value)}
-          placeholder='In minutes'
-          slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
-          type='number'
-          value={duration}
-        />
-      </FormControl>
-      <FormControl sx={{ mt: 2 }}>
-        <FormLabel>Notes</FormLabel>
-        <Textarea
-          minRows={2}
-          placeholder='Anything about your exercise moments...'
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-        />
-      </FormControl>
-      <FormControl sx={{ mt: 2 }}>
-        <FormLabel>Event time</FormLabel>
-        <RadioGroup
-          defaultValue='now'
-          name='radio-buttons-group'
-          onChange={(e) => setRadio(e.target.value)}
-          orientation='horizontal'
-        >
-          <Radio value='now' label='Now' />
-          <Radio value='other' label='Other' />
-        </RadioGroup>
-      </FormControl>
-      {radio === 'other' && (
+    <Form method='post' onSubmit={(e) => onShowAlert('Your exercise has been added successfully')}>
+      <Stack direction='column' justifyContent='center' alignItems='start' spacing={2}>
         <FormControl>
-          <FormLabel>Date and time</FormLabel>
-          <LocalizationProvider adapterLocale='de' dateAdapter={AdapterDayjs}>
-            <DateTimePicker
-              ampm={false}
-              format='DD.MM.YYYY HH:mm'
-              value={picker}
-              onChange={(newValue) => setPicker(newValue)}
-            />
-          </LocalizationProvider>
+          <FormLabel>Duration</FormLabel>
+          <Input
+            placeholder='In minutes'
+            slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
+            type='number'
+            name='duration'
+          />
         </FormControl>
-      )}
-      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button loading={isLoading} type='submit'>
-          Send
-        </Button>
-      </Box>
-    </form>
+        <FormControl>
+          <FormLabel>Notes</FormLabel>
+          <Textarea
+            minRows={2}
+            placeholder='Anything about your exercise moments...'
+            name='notes'
+          />
+        </FormControl>
+        <FormControl>
+          <FormLabel>Event time</FormLabel>
+          <RadioGroup
+            defaultValue='now'
+            name='isNow'
+            onChange={(e) => setRadio(e.target.value)}
+            orientation='horizontal'
+          >
+            <Radio value='now' label='Now' />
+            <Radio value='other' label='Other' />
+          </RadioGroup>
+        </FormControl>
+        {radio === 'other' && (
+          <FormControl>
+            <FormLabel>Date and time</FormLabel>
+            <LocalizationProvider adapterLocale='de' dateAdapter={AdapterDayjs}>
+              <DateTimePicker ampm={false} format='DD.MM.YYYY HH:mm' name='datetime' />
+            </LocalizationProvider>
+          </FormControl>
+        )}
+
+        <Button type='submit'>Send</Button>
+      </Stack>
+    </Form>
   );
 };
 
