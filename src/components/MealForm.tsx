@@ -11,17 +11,16 @@ import {
   Stack,
 } from '@mui/joy';
 
+import { ActionFunctionArgs, Form, redirect } from 'react-router-dom';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import 'dayjs/locale/de';
-import { useState } from 'react';
-import Meal from '../models/MealModel';
-
-import client from '../api';
-import { eventType } from '../models/TreatmentModel';
-import { ActionFunctionArgs, Form, redirect } from 'react-router-dom';
 import dayjs from 'dayjs';
+import 'dayjs/locale/de';
+import client from '../api';
+import Meal from '../models/MealModel';
+import { eventType } from '../models/TreatmentModel';
 import { useOnShowAlert } from '../routes/Root';
+import { useState } from 'react';
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -50,12 +49,7 @@ const MealForm = () => {
   const { onShowAlert } = useOnShowAlert();
 
   return (
-    <Form
-      method='post'
-      onSubmit={(e) => {
-        onShowAlert('Your meal has been added succesfully');
-      }}
-    >
+    <Form method='post' onSubmit={(e) => onShowAlert('Your meal has been added succesfully')}>
       <Stack direction='column' justifyContent='center' alignItems='start' spacing={2}>
         <FormControl>
           <Input

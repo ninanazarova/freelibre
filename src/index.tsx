@@ -10,8 +10,7 @@ import Index, { loader as indexLoader } from './routes/Index';
 import Settings from './routes/Settings';
 import Treatment from './routes/Treatment';
 import MealForm, { action as mealFormAction } from './components/MealForm';
-
-import ExerciseForm from './components/ExerciseForm';
+import ExerciseForm, { action as exerciseFormAction } from './components/ExerciseForm';
 
 const router = createBrowserRouter([
   {
@@ -26,7 +25,7 @@ const router = createBrowserRouter([
           { index: true, element: <Index />, loader: indexLoader },
           { path: 'treatment', element: <Treatment /> },
           { path: 'treatment/meal', element: <MealForm />, action: mealFormAction },
-          { path: 'treatment/exercise', element: <ExerciseForm /> },
+          { path: 'treatment/exercise', element: <ExerciseForm />, action: exerciseFormAction },
           { path: 'search', element: <Search /> },
           { path: 'settings', element: <Settings /> },
         ],
