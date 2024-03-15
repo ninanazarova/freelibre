@@ -66,7 +66,6 @@ export class Client {
 
   public async getEntries(): Promise<Entry[] | []> {
     const token = await this.refreshToken();
-
     const url = BASE_URL + `/api/v3/entries`;
 
     try {
@@ -96,7 +95,6 @@ export class Client {
   }
   public async searchTreatments(searchString: string): Promise<Treatment[] | []> {
     const token = await this.refreshToken();
-
     const url = BASE_URL + `/api/v3/treatments`;
 
     try {
@@ -107,7 +105,7 @@ export class Client {
           Authorization: `Bearer ${token.tokenString}`,
         },
         params: {
-          notes$re: encodeURIComponent(`${searchString}`),
+          notes$re: encodeURIComponent(`(?i)${searchString}(?-i)`),
           sort$desc: 'date',
         },
       });
@@ -120,7 +118,6 @@ export class Client {
   }
   public async getTreatments(): Promise<Treatment[] | []> {
     const token = await this.refreshToken();
-
     const url = BASE_URL + `/api/v3/treatments`;
 
     try {
@@ -144,7 +141,6 @@ export class Client {
   }
   public async getTreatment(id: string): Promise<Treatment | null> {
     const token = await this.refreshToken();
-
     const url = BASE_URL + `/api/v3/treatments/${id}`;
 
     try {
@@ -162,13 +158,13 @@ export class Client {
     }
     return null;
   }
-
   public async postTreatment(formData: Exercise | Meal): Promise<Response | undefined> {
+    const token = await this.refreshToken();
     const url = BASE_URL + `/api/v3/treatments`;
 
     try {
       const response = await axios.post(url, formData, {
-        headers: { Authorization: `Bearer ${this.authToken.tokenString}` },
+        headers: { Authorization: `Bearer ${token.tokenString}` },
       });
 
       return response.data;
