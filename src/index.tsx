@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import '@fontsource/inter';
 import './index.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Root from './routes/Root';
 import Search from './routes/Search';
 import ErrorPage from './ErrorPage';
 import Index, { loader as indexLoader } from './routes/Index';
@@ -11,11 +10,12 @@ import Settings from './routes/Settings';
 import Treatment from './routes/Treatment';
 import MealForm, { action as mealFormAction } from './components/MealForm';
 import ExerciseForm, { action as exerciseFormAction } from './components/ExerciseForm';
+import App from './routes/App';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Root />,
+    element: <App />,
     errorElement: <ErrorPage />,
     children: [
       {
