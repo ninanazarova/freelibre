@@ -20,13 +20,26 @@ type Props = {
 
 const CurrentGlucose = ({ direction, mbg }: Props) => {
   const color = () => {
-    if (mbg < 5) return '#3fb7ff';
-    if (mbg >= 5 && mbg <= 10) return '#69cc26';
-    if (mbg > 10 && mbg < 14) return '#ffd233';
-    if (mbg >= 14) return '#ff5d33';
+    if (mbg < 5) {
+      document.body.style.backgroundColor = '#3fb7ff';
+      return '#3fb7ff';
+    }
+    if (mbg >= 5 && mbg <= 10) {
+      document.body.style.backgroundColor = '#69cc26';
+      return '#69cc26';
+    }
+    if (mbg > 10 && mbg < 14) {
+      document.body.style.backgroundColor = '#ffd233';
+      return '#ffd233';
+    }
+    if (mbg >= 14) {
+      document.body.style.backgroundColor = '#ff5d33';
+      return '#ff5d33';
+    }
   };
+
   return (
-    <Box sx={{ p: 6, bgcolor: color }}>
+    <Box sx={{ padding: { xs: 2, sm: 4 }, bgcolor: color }}>
       <Typography level='h1' textAlign='center' fontWeight={800}>
         {mbg}
         <NorthIcon
