@@ -45,7 +45,7 @@ const RecentTreatments = ({ treatments }: Props) => {
       <List
         sx={{
           borderRadius: 'md',
-          bgcolor: 'white',
+          bgcolor: 'background.surface',
           'li:last-child': {
             display: 'none',
           },
@@ -73,7 +73,7 @@ const RecentTreatments = ({ treatments }: Props) => {
     );
   }
 
-  return <Box sx={{ mx: 3, mt: 3 }}>{content}</Box>;
+  return <Box sx={{ m: 3 }}>{content}</Box>;
 };
 
 export default RecentTreatments;

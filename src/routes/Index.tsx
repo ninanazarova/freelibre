@@ -21,8 +21,9 @@ const Index = () => {
   const { entries, treatments } = useLoaderData() as EntriesAndTreatments;
 
   const lastEntry = entries[entries.length - 1];
+
   return (
-    <Box minHeight={'100vh'} pb={'82px'} bgcolor={'#f3f2f8'}>
+    <Box>
       {entries.length ? (
         <>
           <CurrentGlucose direction={lastEntry.direction} mbg={lastEntry.mbg as number} />

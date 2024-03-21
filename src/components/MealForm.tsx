@@ -3,16 +3,15 @@ import {
   FormLabel,
   Input,
   Textarea,
-  RadioGroup,
-  Radio,
   Button,
   Typography,
-  Divider,
   Stack,
+  inputClasses,
+  textareaClasses,
 } from '@mui/joy';
 
 import { ActionFunctionArgs, Form, redirect } from 'react-router-dom';
-import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/de';
@@ -45,106 +44,75 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 const MealForm = () => {
-  const [radio, setRadio] = useState('now');
   const { onShowAlert } = useOnShowAlert();
+  const [dateTime, setDateTime] = useState(new Date().toISOString());
 
   return (
-    <Form method='post' onSubmit={(e) => onShowAlert('Your meal has been added succesfully')}>
-      <Stack direction='column' justifyContent='center' alignItems='start' spacing={2}>
-        <FormControl>
-          <Input
-            slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
-            startDecorator={
-              <>
-                <Typography>Carbs</Typography>
-                <Divider orientation='vertical' sx={{ ml: 1.5 }} />
-              </>
-            }
-            endDecorator={'g'}
-            type='number'
-            name='carbs'
-          />
-        </FormControl>
-        <FormControl>
-          <Input
-            slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
-            startDecorator={
-              <>
-                <Typography>Protein</Typography>
-                <Divider orientation='vertical' sx={{ ml: 1.5 }} />
-              </>
-            }
-            endDecorator={'g'}
-            type='number'
-            name='protein'
-          />
-        </FormControl>
-        <FormControl>
-          <Input
-            slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
-            startDecorator={
-              <>
-                <Typography>Fat</Typography>
-                <Divider orientation='vertical' sx={{ ml: 1.5 }} />
-              </>
-            }
-            endDecorator={'g'}
-            type='number'
-            name='fat'
-          />
-        </FormControl>
-
-        <FormControl>
-          <FormLabel>Insulin</FormLabel>
-          <Input
-            endDecorator={'mmol'}
-            slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
-            type='number'
-            name='insulin'
-          />
-        </FormControl>
-        <FormControl>
-          <Input
-            slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
-            startDecorator={
-              <>
-                <Typography>Pre-Bolus</Typography>
-                <Divider orientation='vertical' sx={{ ml: 1.5 }} />
-              </>
-            }
-            endDecorator={'min'}
-            type='number'
-            name='preBolus'
-          />
-        </FormControl>
-        <FormControl>
-          <FormLabel>Notes</FormLabel>
-          <Textarea minRows={2} placeholder='Additional comments' name='notes' />
-        </FormControl>
-        <FormControl>
-          <FormLabel>Event time</FormLabel>
-          <RadioGroup
-            defaultValue='now'
-            name='isNow'
-            onChange={(e) => setRadio(e.target.value)}
-            orientation='horizontal'
-          >
-            <Radio value='now' label='Now' />
-            <Radio value='other' label='Other' />
-          </RadioGroup>
-        </FormControl>
-        {radio === 'other' && (
+    <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
+      <Typography level='h2'>Meal</Typography>
+      <Form method='post' onSubmit={(e) => onShowAlert('Your meal has been added succesfully')}>
+        <Stack
+          spacing={2}
+          sx={{
+            [`& .${inputClasses.root}`]: {
+              '--Input-focusedThickness': '1px',
+            },
+            [`& .${inputClasses.input}`]: {
+              width: '100%',
+            },
+            [`& .${textareaClasses.root}`]: {
+              '--Textarea-focusedThickness': '1px',
+            },
+          }}
+        >
+          <FormControl>
+            <Input
+              name='carbs'
+              type='number'
+              size='lg'
+              startDecorator={<Typography>Carbs</Typography>}
+              endDecorator={'g'}
+              slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
+            />
+          </FormControl>
+          <FormControl>
+            <Input
+              name='insulin'
+              type='number'
+              size='lg'
+              startDecorator={<Typography>Insulin</Typography>}
+              endDecorator={'units'}
+              slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
+            />
+          </FormControl>
+          <FormControl>
+            <Input
+              name='preBolus'
+              type='number'
+              size='lg'
+              startDecorator={<Typography>Pre-Bolus</Typography>}
+              endDecorator={'min'}
+              slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
+            />
+          </FormControl>
           <FormControl>
             <FormLabel>Date and time</FormLabel>
             <LocalizationProvider adapterLocale='de' dateAdapter={AdapterDayjs}>
-              <DateTimePicker ampm={false} format='DD.MM.YYYY HH:mm' name='datetime' />
+              <Input name='datetime' type='datetime-local' size='lg' defaultValue={dateTime} />
             </LocalizationProvider>
           </FormControl>
-        )}
 
-        <Button type='submit'>Send</Button>
-      </Stack>
-    </Form>
+          <FormControl>
+            <FormLabel>Notes</FormLabel>
+            <Textarea size='lg' minRows={2} placeholder='Additional comments' name='notes' />
+          </FormControl>
+
+          <Button size='lg' type='submit'>
+            Send
+          </Button>
+        </Stack>
+      </Form>
+    </Stack>
   );
 };
 
