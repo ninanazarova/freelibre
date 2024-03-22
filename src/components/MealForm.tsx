@@ -11,10 +11,8 @@ import {
 } from '@mui/joy';
 
 import { ActionFunctionArgs, Form, redirect } from 'react-router-dom';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
 import dayjs from 'dayjs';
-import 'dayjs/locale/de';
 import client from '../api';
 import Meal from '../models/MealModel';
 import { eventType } from '../models/TreatmentModel';
@@ -23,7 +21,7 @@ import { useState } from 'react';
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const dateIsNow = formData.get('isNow');
+  const dateTime = dayjs(formData.get('datetime') as string, 'YYYY-MM-DDThh:mm').toISOString();
 
   const data: Meal = {
     app: 'freelibre',
@@ -34,10 +32,7 @@ export async function action({ request }: ActionFunctionArgs) {
     insulin: +(formData.get('insulin') as string),
     preBolus: +(formData.get('preBolus') as string),
     notes: formData.get('notes') as string,
-    date:
-      dateIsNow === 'now'
-        ? new Date().toISOString()
-        : dayjs(formData.get('datetime') as string, 'DD.MM.YYYY HH:mm').toISOString(),
+    date: dateTime,
   };
   await client.postTreatment(data);
   return redirect('/');
@@ -45,7 +40,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 const MealForm = () => {
   const { onShowAlert } = useOnShowAlert();
-  const [dateTime, setDateTime] = useState(new Date().toISOString());
+  const [dateTime, setDateTime] = useState(dayjs(new Date()).format('YYYY-MM-DDThh:mm'));
 
   return (
     <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
@@ -70,7 +65,7 @@ const MealForm = () => {
               name='carbs'
               type='number'
               size='lg'
-              startDecorator={<Typography>Carbs</Typography>}
+              startDecorator={<Typography fontSize={'inherit'}>Carbs</Typography>}
               endDecorator={'g'}
               slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
             />
@@ -80,7 +75,7 @@ const MealForm = () => {
               name='insulin'
               type='number'
               size='lg'
-              startDecorator={<Typography>Insulin</Typography>}
+              startDecorator={<Typography fontSize={'inherit'}>Insulin</Typography>}
               endDecorator={'units'}
               slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
             />
@@ -90,16 +85,20 @@ const MealForm = () => {
               name='preBolus'
               type='number'
               size='lg'
-              startDecorator={<Typography>Pre-Bolus</Typography>}
+              startDecorator={<Typography fontSize={'inherit'}>Pre-Bolus</Typography>}
               endDecorator={'min'}
               slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
             />
           </FormControl>
           <FormControl>
             <FormLabel>Date and time</FormLabel>
-            <LocalizationProvider adapterLocale='de' dateAdapter={AdapterDayjs}>
-              <Input name='datetime' type='datetime-local' size='lg' defaultValue={dateTime} />
-            </LocalizationProvider>
+            <Input
+              name='datetime'
+              type='datetime-local'
+              size='lg'
+              value={dateTime}
+              onChange={(e) => setDateTime(e.target.value)}
+            />
           </FormControl>
 
           <FormControl>
