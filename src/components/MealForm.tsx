@@ -21,7 +21,7 @@ import { useState } from 'react';
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const dateTime = dayjs(formData.get('datetime') as string, 'YYYY-MM-DDThh:mm').toISOString();
+  const dateTime = dayjs(formData.get('datetime') as string, 'YYYY-MM-DDTHH:mm').toISOString();
 
   const data: Meal = {
     app: 'freelibre',
@@ -40,7 +40,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 const MealForm = () => {
   const { onShowAlert } = useOnShowAlert();
-  const [dateTime, setDateTime] = useState(dayjs(new Date()).format('YYYY-MM-DDThh:mm'));
+  const [dateTime, setDateTime] = useState(dayjs(new Date()).format('YYYY-MM-DDTHH:mm'));
 
   return (
     <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
