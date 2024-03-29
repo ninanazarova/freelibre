@@ -3,16 +3,14 @@ import {
   FormLabel,
   Input,
   Textarea,
-  RadioGroup,
-  Radio,
   Button,
   Stack,
+  inputClasses,
+  Typography,
+  textareaClasses,
 } from '@mui/joy';
 
 import { ActionFunctionArgs, Form, redirect } from 'react-router-dom';
-import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import 'dayjs/locale/de';
 import dayjs from 'dayjs';
 import client from '../api';
 import Exercise from '../models/ExerciseModel';
@@ -22,7 +20,7 @@ import { useState } from 'react';
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const dateIsNow = formData.get('isNow');
+  const dateTime = dayjs(formData.get('datetime') as string, 'YYYY-MM-DDTHH:mm').toISOString();
   const duration = formData.get('duration');
 
   const data: Exercise = {
@@ -30,63 +28,66 @@ export async function action({ request }: ActionFunctionArgs) {
     eventType: eventType.EXERCISE,
     duration: duration === '' ? 0 : +(duration as string),
     notes: formData.get('notes') as string,
-    date:
-      dateIsNow === 'now'
-        ? new Date().toISOString()
-        : dayjs(formData.get('datetime') as string, 'DD.MM.YYYY HH:mm').toISOString(),
+    date: dateTime,
   };
   await client.postTreatment(data);
   return redirect('/');
 }
 
 const ExerciseForm = () => {
-  const [radio, setRadio] = useState('now');
   const { onShowAlert } = useOnShowAlert();
+  const [dateTime, setDateTime] = useState(dayjs(new Date()).format('YYYY-MM-DDTHH:mm'));
 
   return (
-    <Form method='post' onSubmit={(e) => onShowAlert('Your exercise has been added successfully')}>
-      <Stack direction='column' justifyContent='center' alignItems='start' spacing={2}>
-        <FormControl>
-          <FormLabel>Duration</FormLabel>
-          <Input
-            placeholder='In minutes'
-            slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
-            type='number'
-            name='duration'
-          />
-        </FormControl>
-        <FormControl>
-          <FormLabel>Notes</FormLabel>
-          <Textarea
-            minRows={2}
-            placeholder='Anything about your exercise moments...'
-            name='notes'
-          />
-        </FormControl>
-        <FormControl>
-          <FormLabel>Event time</FormLabel>
-          <RadioGroup
-            defaultValue='now'
-            name='isNow'
-            onChange={(e) => setRadio(e.target.value)}
-            orientation='horizontal'
-          >
-            <Radio value='now' label='Now' />
-            <Radio value='other' label='Other' />
-          </RadioGroup>
-        </FormControl>
-        {radio === 'other' && (
+    <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
+      <Typography level='h2'>Exercise</Typography>
+      <Form method='post' onSubmit={(e) => onShowAlert('Your exercise has been added succesfully')}>
+        <Stack
+          spacing={2}
+          sx={{
+            [`& .${inputClasses.root}`]: {
+              '--Input-focusedThickness': '1px',
+            },
+            [`& .${inputClasses.input}`]: {
+              width: '100%',
+            },
+            [`& .${textareaClasses.root}`]: {
+              '--Textarea-focusedThickness': '1px',
+            },
+          }}
+        >
+          <FormControl>
+            <Input
+              name='duration'
+              type='number'
+              size='lg'
+              startDecorator={<Typography fontSize={'inherit'}>Duration</Typography>}
+              endDecorator={'min'}
+              slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
+            />
+          </FormControl>
           <FormControl>
             <FormLabel>Date and time</FormLabel>
-            <LocalizationProvider adapterLocale='de' dateAdapter={AdapterDayjs}>
-              <DateTimePicker ampm={false} format='DD.MM.YYYY HH:mm' name='datetime' />
-            </LocalizationProvider>
+            <Input
+              name='datetime'
+              type='datetime-local'
+              size='lg'
+              value={dateTime}
+              onChange={(e) => setDateTime(e.target.value)}
+            />
           </FormControl>
-        )}
 
-        <Button type='submit'>Send</Button>
-      </Stack>
-    </Form>
+          <FormControl>
+            <FormLabel>Notes</FormLabel>
+            <Textarea size='lg' minRows={2} placeholder='Additional comments' name='notes' />
+          </FormControl>
+
+          <Button size='lg' type='submit'>
+            Send
+          </Button>
+        </Stack>
+      </Form>
+    </Stack>
   );
 };
 

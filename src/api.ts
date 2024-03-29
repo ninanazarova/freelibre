@@ -1,8 +1,10 @@
 import axios from 'axios';
 import Entry from './models/EntryModel';
 import { calculate } from './helpers';
-import Exercise from './models/ExerciseModel';
 import Meal from './models/MealModel';
+import Rapid from './models/RapidModel';
+import Long from './models/LongModel';
+import Exercise from './models/ExerciseModel';
 import Treatment from './models/TreatmentModel';
 
 type AuthorizationToken = {
@@ -105,7 +107,7 @@ export class Client {
           Authorization: `Bearer ${token.tokenString}`,
         },
         params: {
-          notes$re: encodeURIComponent(`(?i)${searchString}(?-i)`),
+          notes$re: '(?i)' + encodeURIComponent(`${searchString}`) + '(?-i)',
           sort$desc: 'date',
         },
       });
@@ -158,7 +160,9 @@ export class Client {
     }
     return null;
   }
-  public async postTreatment(formData: Exercise | Meal): Promise<Response | undefined> {
+  public async postTreatment(
+    formData: Meal | Rapid | Long | Exercise
+  ): Promise<Response | undefined> {
     const token = await this.refreshToken();
     const url = BASE_URL + `/api/v3/treatments`;
 
