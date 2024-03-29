@@ -1,4 +1,4 @@
-interface Treatment {
+interface TreatmentModel {
   identifier: string;
   date: number; //*
   utcOffset: number;
@@ -40,7 +40,7 @@ export enum eventType {
   EXERCISE = 'Exercise',
 }
 
-export default Treatment;
+export default TreatmentModel;
 
 // all eventTypes: "BG Check", "Snack Bolus", "Meal Bolus", "Correction Bolus", "Carb Correction", "Combo Bolus", "Announcement", "Note", "Question", "Exercise", "Site Change", "Sensor Start", "Sensor Change", "Pump Battery Change", "Insulin Change", "Temp Basal", "Profile Switch", "D.A.D. Alert", "Temporary Target", "OpenAPS Offline", "Bolus Wizard"
 
