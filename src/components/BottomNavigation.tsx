@@ -59,7 +59,7 @@ const BottomNavigation = () => {
         </NavLink>
 
         <NavLink
-          to='treatment'
+          to='new'
           className={({ isActive, isPending }: NavLinkRenderProps) => {
             if (isActive || isPending) setPressed('add');
             return '';
