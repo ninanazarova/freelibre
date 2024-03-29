@@ -1,5 +1,5 @@
 import Treatment from '../models/TreatmentModel';
-import { Box, List, ListDivider, ListItem, ListItemDecorator, Typography } from '@mui/joy';
+import { List, ListDivider, ListItem, ListItemDecorator, Typography } from '@mui/joy';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import RestaurantTwoToneIcon from '@mui/icons-material/RestaurantTwoTone';
 import KeyboardDoubleArrowRightSharpIcon from '@mui/icons-material/KeyboardDoubleArrowRightSharp';
@@ -36,44 +36,50 @@ const render = (type: eventType) => {
   return { icon, title };
 };
 
-const RecentTreatments = ({ treatments }: Props) => {
-  let content;
-  if (treatments.length === 0) {
-    content = <span>There is no recent treatments</span>;
-  } else {
-    content = (
-      <List
-        sx={{
-          borderRadius: 'md',
-          bgcolor: 'background.surface',
-          'li:last-child': {
-            display: 'none',
-          },
-        }}
-      >
-        {(treatments as Treatment[]).map((treat) => {
-          const res = render(treat.eventType);
+const RecentTreatments = ({ treatments = [] }: Props) => {
+  return (
+    <List
+      sx={{
+        m: 3,
+        borderRadius: 'md',
+        bgcolor: 'background.surface',
+        'li:last-child': {
+          display: 'none',
+        },
+      }}
+    >
+      {treatments.length === 0 ? (
+        <>
+          <ListItem>
+            <Typography>No treatments found</Typography>
+          </ListItem>
+          <ListDivider inset='startContent' />
+        </>
+      ) : (
+        (treatments as Treatment[]).map((treat) => {
+          const content = render(treat.eventType);
 
           return (
             <Fragment key={treat.identifier}>
               <ListItem>
-                <ListItemDecorator>{res.icon}</ListItemDecorator>
-                <Typography level='body-sm'>{`${dayjs(treat.date).format('HH:mm')}`}</Typography>
+                <ListItemDecorator>{content.icon}</ListItemDecorator>
 
                 <div>
-                  <Typography level='title-md'>{`${res.title}`}</Typography>
+                  <Typography level='body-sm'>{dayjs(treat.date).format('HH:mm')}</Typography>
+                </div>
+
+                <div>
+                  <Typography level='title-sm'>{`${content.title}`}</Typography>
                   <Typography level='body-sm'>{treat.notes}</Typography>
                 </div>
               </ListItem>
               <ListDivider inset='startContent' />
             </Fragment>
           );
-        })}
-      </List>
-    );
-  }
-
-  return <Box sx={{ m: 3 }}>{content}</Box>;
+        })
+      )}
+    </List>
+  );
 };
 
 export default RecentTreatments;
