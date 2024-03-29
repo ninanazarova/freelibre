@@ -72,7 +72,10 @@ function Main(props: BoxProps) {
       component='main'
       className='Main'
       {...props}
-      sx={[{ bgcolor: 'background.level1' }, ...(Array.isArray(props.sx) ? props.sx : [props.sx])]}
+      sx={[
+        { bgcolor: 'background.level1', pb: '100px' },
+        ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
+      ]}
     />
   );
 }
