@@ -4,10 +4,7 @@ interface TreatmentModel {
   utcOffset: number;
   app: string; //*
   device: string;
-  _id: string;
-  srvCreated: number;
   subject: string;
-  srvModified: number;
   modifiedBy: string;
   isValid: boolean;
   isReadOnly: boolean;
@@ -31,6 +28,10 @@ interface TreatmentModel {
   reason: string;
   notes: string;
   enteredBy: string;
+
+  freelibre_2h: boolean;
+  freelibre_sgv: number;
+  freelibre_sgv_2h: number;
 }
 
 export enum eventType {

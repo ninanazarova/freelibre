@@ -1,5 +1,6 @@
 import Treatment from '../models/TreatmentModel';
 import {
+  Box,
   List,
   ListDivider,
   ListItem,
@@ -17,6 +18,7 @@ import { eventType } from '../models/TreatmentModel';
 import { Fragment } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { KeyboardArrowRight } from '@mui/icons-material';
+import { sgvToMbg } from '../helpers';
 
 type Props = {
   treatments: Treatment[] | [];
@@ -101,12 +103,17 @@ const Treatments = ({ treatments = [] }: Props) => {
                     <Typography level='body-sm'>{dayjs(treat.date).format('MMM DD')}</Typography>
                   </div>
                   <ListItemContent>
-                    <div>
+                    <Box display='flex' justifyContent='space-between'>
                       <Typography level='title-sm'>{`${content.title}`}</Typography>
-                      <Typography level='body-sm' noWrap>
-                        {treat.notes}
-                      </Typography>
-                    </div>
+                      {treat.freelibre_sgv && (
+                        <Typography level='body-sm'>
+                          {sgvToMbg(treat.freelibre_sgv)} → {sgvToMbg(treat.freelibre_sgv_2h)}
+                        </Typography>
+                      )}
+                    </Box>
+                    <Typography level='body-sm' noWrap>
+                      {treat.notes}
+                    </Typography>
                   </ListItemContent>
 
                   <KeyboardArrowRight fontSize='small' />

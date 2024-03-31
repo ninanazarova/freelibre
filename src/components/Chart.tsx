@@ -86,7 +86,7 @@ const Chart = ({ entries, treatments }: Props) => {
     <ResponsiveChartContainer
       sx={{ bgcolor: 'white' }}
       height={400}
-      margin={{ top: 30, bottom: 50, left: 30, right: 30 }}
+      margin={{ top: 20, bottom: 40, left: 30, right: 30 }}
       series={[
         { type: 'line', data: eSerie, color: 'black', showMark: false },
         { type: 'line', data: tSerie, color: 'red', showMark: true },
