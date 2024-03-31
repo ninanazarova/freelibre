@@ -13,7 +13,9 @@ import MealForm, { action as mealFormAction } from './components/MealForm';
 import RapidForm, { action as rapidFormAction } from './components/RapidForm';
 import LongForm, { action as longFormAction } from './components/LongForm';
 import ExerciseForm, { action as exerciseFormAction } from './components/ExerciseForm';
-import Treatment from './routes/Treatment';
+import Treatment, { loader as treatmentLoader } from './routes/Treatment';
+import NightscoutUrl from './routes/NightscoutUrl';
+import AccessToken from './routes/AccessToken';
 
 const router = createBrowserRouter([
   {
@@ -32,8 +34,10 @@ const router = createBrowserRouter([
           { path: 'new/long', element: <LongForm />, action: longFormAction },
           { path: 'new/exercise', element: <ExerciseForm />, action: exerciseFormAction },
           { path: 'search', element: <Search />, loader: searchLoader },
-          { path: 'search/:treatmentId', element: <Treatment /> },
+          { path: 'search/:treatmentId', element: <Treatment />, loader: treatmentLoader },
           { path: 'settings', element: <Settings /> },
+          { path: 'settings/nightscout-url', element: <NightscoutUrl /> },
+          { path: 'settings/access-token', element: <AccessToken /> },
         ],
       },
     ],

@@ -1,13 +1,10 @@
-interface Treatment {
+interface TreatmentModel {
   identifier: string;
   date: number; //*
   utcOffset: number;
   app: string; //*
   device: string;
-  _id: string;
-  srvCreated: number;
   subject: string;
-  srvModified: number;
   modifiedBy: string;
   isValid: boolean;
   isReadOnly: boolean;
@@ -31,6 +28,10 @@ interface Treatment {
   reason: string;
   notes: string;
   enteredBy: string;
+
+  freelibre_2h: boolean;
+  freelibre_sgv: number;
+  freelibre_sgv_2h: number;
 }
 
 export enum eventType {
@@ -40,7 +41,7 @@ export enum eventType {
   EXERCISE = 'Exercise',
 }
 
-export default Treatment;
+export default TreatmentModel;
 
 // all eventTypes: "BG Check", "Snack Bolus", "Meal Bolus", "Correction Bolus", "Carb Correction", "Combo Bolus", "Announcement", "Note", "Question", "Exercise", "Site Change", "Sensor Start", "Sensor Change", "Pump Battery Change", "Insulin Change", "Temp Basal", "Profile Switch", "D.A.D. Alert", "Temporary Target", "OpenAPS Offline", "Bolus Wizard"
 

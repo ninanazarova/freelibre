@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Entry from './models/EntryModel';
-import { calculate } from './helpers';
+import { sgvToMbg } from './helpers';
 import Meal from './models/MealModel';
 import Rapid from './models/RapidModel';
 import Long from './models/LongModel';
@@ -86,7 +86,7 @@ export class Client {
 
       const entries = result.map((entry: Entry) => ({
         ...entry,
-        mbg: calculate(entry.sgv),
+        mbg: sgvToMbg(entry.sgv),
       }));
 
       return entries;
