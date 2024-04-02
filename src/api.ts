@@ -18,9 +18,6 @@ type Response = {
   deduplicatedIdentifier?: string;
 };
 
-const TOKEN = process.env.REACT_APP_TOKEN as string;
-const BASE_URL = process.env.REACT_APP_BASE_URL as string;
-
 function getFromTime() {
   const hoursInterval = 12;
   const to = new Date().getTime();
@@ -29,8 +26,8 @@ function getFromTime() {
 }
 
 export class Client {
-  private readonly accessToken: string;
-  private readonly baseUrl: string;
+  private accessToken: string;
+  private baseUrl: string;
 
   private authToken: AuthorizationToken;
 
@@ -40,16 +37,23 @@ export class Client {
     this.authToken = { tokenString: '', expiresAt: null };
   }
 
-  private async authorize(): Promise<AuthorizationToken | void> {
+  setAuth({ baseUrl, accessToken }: { baseUrl: string; accessToken: string }) {
+    this.baseUrl = baseUrl;
+    this.accessToken = accessToken;
+  }
+  public async authorize(): Promise<AuthorizationToken | null> {
     const url = this.baseUrl + `/api/v2/authorization/request/${this.accessToken}`;
     try {
       const { data } = await axios.get(url);
+
       return {
         tokenString: data.token,
         expiresAt: new Date(data.exp * 1000),
       };
     } catch (e) {
       console.error(`Authorize NightScout token failed: ${e}`);
+    } finally {
+      return null;
     }
   }
 
@@ -68,7 +72,7 @@ export class Client {
 
   public async getEntries(): Promise<Entry[] | []> {
     const token = await this.refreshToken();
-    const url = BASE_URL + `/api/v3/entries`;
+    const url = this.baseUrl + `/api/v3/entries`;
 
     try {
       const {
@@ -97,7 +101,7 @@ export class Client {
   }
   public async searchTreatments(searchString: string): Promise<Treatment[] | []> {
     const token = await this.refreshToken();
-    const url = BASE_URL + `/api/v3/treatments`;
+    const url = this.baseUrl + `/api/v3/treatments`;
 
     try {
       const {
@@ -120,7 +124,7 @@ export class Client {
   }
   public async getTreatments(): Promise<Treatment[] | []> {
     const token = await this.refreshToken();
-    const url = BASE_URL + `/api/v3/treatments`;
+    const url = this.baseUrl + `/api/v3/treatments`;
 
     try {
       const {
@@ -143,7 +147,7 @@ export class Client {
   }
   public async getTreatment(id: string): Promise<Treatment | null> {
     const token = await this.refreshToken();
-    const url = BASE_URL + `/api/v3/treatments/${id}`;
+    const url = this.baseUrl + `/api/v3/treatments/${id}`;
 
     try {
       const {
@@ -164,7 +168,7 @@ export class Client {
     formData: Meal | Rapid | Long | Exercise
   ): Promise<Response | undefined> {
     const token = await this.refreshToken();
-    const url = BASE_URL + `/api/v3/treatments`;
+    const url = this.baseUrl + `/api/v3/treatments`;
 
     try {
       const response = await axios.post(url, formData, {
@@ -179,5 +183,9 @@ export class Client {
   }
 }
 
-const client = new Client(TOKEN, BASE_URL);
+const client = new Client(
+  JSON.parse(localStorage.getItem('access_token') as string),
+  JSON.parse(localStorage.getItem('base_url') as string)
+);
+
 export default client;
