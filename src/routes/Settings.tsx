@@ -1,9 +1,19 @@
 import { KeyboardArrowRight } from '@mui/icons-material';
-import { List, ListDivider, ListItemButton, ListItemContent, Stack, Typography } from '@mui/joy';
+import {
+  Button,
+  List,
+  ListDivider,
+  ListItemButton,
+  ListItemContent,
+  Stack,
+  Typography,
+} from '@mui/joy';
 import { ListItem } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
+import { useAuth } from '../SetupContext';
 
 const Settings = () => {
+  const { logoutUser } = useAuth();
   return (
     <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
       <Typography level='h2'>Settings</Typography>
@@ -43,11 +53,14 @@ const Settings = () => {
         <ListDivider />
         <ListItem>
           <ListItemButton component={RouterLink} to='access-token'>
-            <ListItemContent>Access Token</ListItemContent>
+            <ListItemContent>Token</ListItemContent>
             <KeyboardArrowRight fontSize='small' />
           </ListItemButton>
         </ListItem>
       </List>
+      <Button color='danger' onClick={logoutUser} size='lg'>
+        Logout
+      </Button>
     </Stack>
   );
 };

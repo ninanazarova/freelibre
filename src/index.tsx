@@ -16,7 +16,7 @@ import ExerciseForm, { action as exerciseFormAction } from './components/Exercis
 import Treatment, { loader as treatmentLoader } from './routes/Treatment';
 import Settings from './routes/Settings';
 import NightscoutUrl from './routes/NightscoutUrl';
-import AccessToken from './routes/AccessToken';
+import RefreshToken from './routes/RefreshToken';
 
 import { AuthProvider, useAuth } from './SetupContext';
 
@@ -24,7 +24,11 @@ export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
 
-  return isAuthenticated ? <>{children}</> : <Navigate to='/login' state={{ from: location }} />;
+  return isAuthenticated ? (
+    <div>{children}</div>
+  ) : (
+    <Navigate to='/login' state={{ from: location }} />
+  );
 };
 
 const router = createBrowserRouter([
@@ -52,7 +56,7 @@ const router = createBrowserRouter([
           { path: 'search/:treatmentId', element: <Treatment />, loader: treatmentLoader },
           { path: 'settings', element: <Settings /> },
           { path: 'settings/nightscout-url', element: <NightscoutUrl /> },
-          { path: 'settings/access-token', element: <AccessToken /> },
+          { path: 'settings/refresh-token', element: <RefreshToken /> },
         ],
       },
     ],

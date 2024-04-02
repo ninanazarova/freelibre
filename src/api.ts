@@ -7,7 +7,7 @@ import Long from './models/LongModel';
 import Exercise from './models/ExerciseModel';
 import Treatment from './models/TreatmentModel';
 
-type AuthorizationToken = {
+type AccessToken = {
   tokenString: string;
   expiresAt: Date | null;
 };
@@ -26,52 +26,50 @@ function getFromTime() {
 }
 
 export class Client {
-  private accessToken: string;
+  private refreshToken: string;
   private baseUrl: string;
 
-  private authToken: AuthorizationToken;
+  private accessToken: AccessToken;
 
-  constructor(accessToken: string, baseUrl: string) {
+  constructor(refreshToken: string, baseUrl: string) {
     this.baseUrl = baseUrl;
-    this.accessToken = accessToken;
-    this.authToken = { tokenString: '', expiresAt: null };
+    this.refreshToken = refreshToken;
+    this.accessToken = { tokenString: '', expiresAt: null };
   }
 
-  setAuth({ baseUrl, accessToken }: { baseUrl: string; accessToken: string }) {
+  setAuth({ baseUrl, refreshToken }: { baseUrl: string; refreshToken: string }) {
     this.baseUrl = baseUrl;
-    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
   }
-  public async authorize(): Promise<AuthorizationToken | null> {
-    const url = this.baseUrl + `/api/v2/authorization/request/${this.accessToken}`;
+  public async authorize(): Promise<AccessToken | null> {
+    const url = this.baseUrl + `/api/v2/authorization/request/${this.refreshToken}`;
     try {
       const { data } = await axios.get(url);
-
       return {
         tokenString: data.token,
         expiresAt: new Date(data.exp * 1000),
       };
     } catch (e) {
       console.error(`Authorize NightScout token failed: ${e}`);
-    } finally {
       return null;
     }
   }
 
-  private async refreshToken(): Promise<AuthorizationToken> {
-    if (this.authToken.expiresAt !== null && this.authToken.expiresAt > new Date()) {
-      return this.authToken;
+  private async refreshAccessToken(): Promise<AccessToken> {
+    if (this.accessToken.expiresAt !== null && this.accessToken.expiresAt > new Date()) {
+      return this.accessToken;
     }
 
     const newToken = await this.authorize();
     if (newToken) {
-      this.authToken = newToken;
+      this.accessToken = newToken;
     }
 
-    return this.authToken;
+    return this.accessToken;
   }
 
   public async getEntries(): Promise<Entry[] | []> {
-    const token = await this.refreshToken();
+    const token = await this.refreshAccessToken();
     const url = this.baseUrl + `/api/v3/entries`;
 
     try {
@@ -100,7 +98,7 @@ export class Client {
     return [];
   }
   public async searchTreatments(searchString: string): Promise<Treatment[] | []> {
-    const token = await this.refreshToken();
+    const token = await this.refreshAccessToken();
     const url = this.baseUrl + `/api/v3/treatments`;
 
     try {
@@ -123,7 +121,7 @@ export class Client {
     return [];
   }
   public async getTreatments(): Promise<Treatment[] | []> {
-    const token = await this.refreshToken();
+    const token = await this.refreshAccessToken();
     const url = this.baseUrl + `/api/v3/treatments`;
 
     try {
@@ -146,7 +144,7 @@ export class Client {
     return [];
   }
   public async getTreatment(id: string): Promise<Treatment | null> {
-    const token = await this.refreshToken();
+    const token = await this.refreshAccessToken();
     const url = this.baseUrl + `/api/v3/treatments/${id}`;
 
     try {
@@ -167,7 +165,7 @@ export class Client {
   public async postTreatment(
     formData: Meal | Rapid | Long | Exercise
   ): Promise<Response | undefined> {
-    const token = await this.refreshToken();
+    const token = await this.refreshAccessToken();
     const url = this.baseUrl + `/api/v3/treatments`;
 
     try {
@@ -184,7 +182,7 @@ export class Client {
 }
 
 const client = new Client(
-  JSON.parse(localStorage.getItem('access_token') as string),
+  JSON.parse(localStorage.getItem('refresh_token') as string),
   JSON.parse(localStorage.getItem('base_url') as string)
 );
 

@@ -10,7 +10,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleSave = async () => {
-    localStorage.setItem('access_token', JSON.stringify(token));
+    localStorage.setItem('refresh_token', JSON.stringify(token));
     localStorage.setItem('base_url', JSON.stringify(url));
 
     await auth.loginUser(token, url);
@@ -42,7 +42,7 @@ const LoginPage = () => {
           <Input onChange={(e) => setUrl(e.target.value)} />
         </FormControl>
         <FormControl required size='lg'>
-          <FormLabel>Access Token</FormLabel>
+          <FormLabel>Token</FormLabel>
           <Input onChange={(e) => setToken(e.target.value)} />
         </FormControl>
         <Button size='lg' type='button' onClick={handleSave}>

@@ -1,16 +1,16 @@
 import { Button, FormControl, Input, Stack, Typography, inputClasses } from '@mui/joy';
 import { ActionFunctionArgs, Form, redirect } from 'react-router-dom';
-import { useOnShowAlert } from '../routes/Root';
+import { useOnShowAlert } from './Root';
 
 export async function action({ request }: ActionFunctionArgs) {
   return redirect('/');
 }
-const AccessToken = () => {
+const RefreshToken = () => {
   const { onShowAlert } = useOnShowAlert();
   return (
     <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
-      <Typography level='h3'>Access Token</Typography>
-      <Form method='post' onSubmit={(e) => onShowAlert('Access Token was updated!')}>
+      <Typography level='h3'>Refresh Token</Typography>
+      <Form method='post' onSubmit={(e) => onShowAlert('Refresh Token was changed!')}>
         <Stack
           spacing={2}
           sx={{
@@ -23,7 +23,7 @@ const AccessToken = () => {
           }}
         >
           <FormControl>
-            <Input name='accessToken' type='text' size='lg' />
+            <Input name='refreshToken' type='text' size='lg' />
           </FormControl>
 
           <Button size='lg' type='submit'>
@@ -35,4 +35,4 @@ const AccessToken = () => {
   );
 };
 
-export default AccessToken;
+export default RefreshToken;

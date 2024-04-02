@@ -12,14 +12,14 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(
-    localStorage.getItem('access_token') !== null && localStorage.getItem('base_url') !== null
+    localStorage.getItem('refresh_token') !== null && localStorage.getItem('base_url') !== null
   );
 
-  const loginUser = async (accessToken: string, baseUrl: string) => {
-    client.setAuth({ accessToken, baseUrl });
+  const loginUser = async (refreshToken: string, baseUrl: string) => {
+    client.setAuth({ refreshToken, baseUrl });
     try {
-      const authToken = await client.authorize();
-      if (authToken) {
+      const accessToken = await client.authorize();
+      if (accessToken) {
         setIsAuthenticated(true);
       }
     } catch (e) {
@@ -28,6 +28,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logoutUser = () => {
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('base_url');
+
     setIsAuthenticated(false);
   };
 
