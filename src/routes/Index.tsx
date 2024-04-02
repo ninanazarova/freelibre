@@ -9,6 +9,11 @@ import { useLoaderData } from 'react-router-dom';
 import TimeControls from '../components/TimeControls';
 
 export async function loader() {
+  const result = await client.authorize();
+  if (result === null) {
+    return { entries: [], treatments: [] };
+  }
+
   const entries = await client.getEntries();
   const treatments = await client.getTreatments();
   return { entries, treatments };
