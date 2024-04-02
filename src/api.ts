@@ -7,7 +7,7 @@ import Long from './models/LongModel';
 import Exercise from './models/ExerciseModel';
 import Treatment from './models/TreatmentModel';
 
-type AuthorizationToken = {
+type AccessToken = {
   tokenString: string;
   expiresAt: Date | null;
 };
@@ -18,9 +18,6 @@ type Response = {
   deduplicatedIdentifier?: string;
 };
 
-const TOKEN = process.env.REACT_APP_TOKEN as string;
-const BASE_URL = process.env.REACT_APP_BASE_URL as string;
-
 function getFromTime() {
   const hoursInterval = 12;
   const to = new Date().getTime();
@@ -29,19 +26,23 @@ function getFromTime() {
 }
 
 export class Client {
-  private readonly accessToken: string;
-  private readonly baseUrl: string;
+  private refreshToken: string;
+  private baseUrl: string;
 
-  private authToken: AuthorizationToken;
+  private accessToken: AccessToken;
 
-  constructor(accessToken: string, baseUrl: string) {
+  constructor(refreshToken: string, baseUrl: string) {
     this.baseUrl = baseUrl;
-    this.accessToken = accessToken;
-    this.authToken = { tokenString: '', expiresAt: null };
+    this.refreshToken = refreshToken;
+    this.accessToken = { tokenString: '', expiresAt: null };
   }
 
-  private async authorize(): Promise<AuthorizationToken | void> {
-    const url = this.baseUrl + `/api/v2/authorization/request/${this.accessToken}`;
+  setAuth({ baseUrl, refreshToken }: { baseUrl: string; refreshToken: string }) {
+    this.baseUrl = baseUrl;
+    this.refreshToken = refreshToken;
+  }
+  public async authorize(): Promise<AccessToken | null> {
+    const url = this.baseUrl + `/api/v2/authorization/request/${this.refreshToken}`;
     try {
       const { data } = await axios.get(url);
       return {
@@ -50,25 +51,26 @@ export class Client {
       };
     } catch (e) {
       console.error(`Authorize NightScout token failed: ${e}`);
+      return null;
     }
   }
 
-  private async refreshToken(): Promise<AuthorizationToken> {
-    if (this.authToken.expiresAt !== null && this.authToken.expiresAt > new Date()) {
-      return this.authToken;
+  private async refreshAccessToken(): Promise<AccessToken> {
+    if (this.accessToken.expiresAt !== null && this.accessToken.expiresAt > new Date()) {
+      return this.accessToken;
     }
 
     const newToken = await this.authorize();
     if (newToken) {
-      this.authToken = newToken;
+      this.accessToken = newToken;
     }
 
-    return this.authToken;
+    return this.accessToken;
   }
 
   public async getEntries(): Promise<Entry[] | []> {
-    const token = await this.refreshToken();
-    const url = BASE_URL + `/api/v3/entries`;
+    const token = await this.refreshAccessToken();
+    const url = this.baseUrl + `/api/v3/entries`;
 
     try {
       const {
@@ -96,8 +98,8 @@ export class Client {
     return [];
   }
   public async searchTreatments(searchString: string): Promise<Treatment[] | []> {
-    const token = await this.refreshToken();
-    const url = BASE_URL + `/api/v3/treatments`;
+    const token = await this.refreshAccessToken();
+    const url = this.baseUrl + `/api/v3/treatments`;
 
     try {
       const {
@@ -119,8 +121,8 @@ export class Client {
     return [];
   }
   public async getTreatments(): Promise<Treatment[] | []> {
-    const token = await this.refreshToken();
-    const url = BASE_URL + `/api/v3/treatments`;
+    const token = await this.refreshAccessToken();
+    const url = this.baseUrl + `/api/v3/treatments`;
 
     try {
       const {
@@ -142,8 +144,8 @@ export class Client {
     return [];
   }
   public async getTreatment(id: string): Promise<Treatment | null> {
-    const token = await this.refreshToken();
-    const url = BASE_URL + `/api/v3/treatments/${id}`;
+    const token = await this.refreshAccessToken();
+    const url = this.baseUrl + `/api/v3/treatments/${id}`;
 
     try {
       const {
@@ -163,8 +165,8 @@ export class Client {
   public async postTreatment(
     formData: Meal | Rapid | Long | Exercise
   ): Promise<Response | undefined> {
-    const token = await this.refreshToken();
-    const url = BASE_URL + `/api/v3/treatments`;
+    const token = await this.refreshAccessToken();
+    const url = this.baseUrl + `/api/v3/treatments`;
 
     try {
       const response = await axios.post(url, formData, {
@@ -179,5 +181,9 @@ export class Client {
   }
 }
 
-const client = new Client(TOKEN, BASE_URL);
+const client = new Client(
+  JSON.parse(localStorage.getItem('refresh_token') as string),
+  JSON.parse(localStorage.getItem('base_url') as string)
+);
+
 export default client;
