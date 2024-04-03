@@ -23,7 +23,7 @@ type EntriesAndTreatments = {
   treatments: Treatment[] | [];
 };
 
-const Index = () => {
+const Overview = () => {
   const { entries, treatments } = useLoaderData() as EntriesAndTreatments;
 
   const lastEntry = entries[entries.length - 1];
@@ -46,4 +46,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Overview;
