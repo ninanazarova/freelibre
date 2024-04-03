@@ -33,7 +33,7 @@ const BottomNavigation = () => {
         }}
       >
         <NavLink
-          to='/'
+          to='overview'
           children={({ isActive }) => (
             <IconButton
               aria-label='Home'
