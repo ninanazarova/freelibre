@@ -26,7 +26,7 @@ function Index() {
 
   useEffect(() => {
     isAuthenticated
-      ? navigate('/app/overview', { replace: true })
+      ? navigate('/overview', { replace: true })
       : navigate('/login', { replace: true });
   }, [isAuthenticated, navigate]);
 
@@ -41,10 +41,10 @@ const router = createBrowserRouter([
     children: [
       { path: 'login', element: <LoginPage /> },
       {
-        path: 'app',
+        path: '/',
         element: <App />,
         children: [
-          { index: true, path: 'overview', element: <Overview />, loader: overviewLoader },
+          { path: 'overview', element: <Overview />, loader: overviewLoader },
           { path: 'new', element: <New /> },
           { path: 'new/meal', element: <MealForm />, action: mealFormAction },
           { path: 'new/rapid', element: <RapidForm />, action: rapidFormAction },

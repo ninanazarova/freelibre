@@ -30,7 +30,7 @@ export async function action({ request }: ActionFunctionArgs) {
     date: dateTime,
   };
   await client.postTreatment(data);
-  return redirect('/');
+  return redirect('/overview');
 }
 
 const LongForm = () => {
