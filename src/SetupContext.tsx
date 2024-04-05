@@ -1,41 +1,30 @@
 import React, { createContext, useContext, useState } from 'react';
-import client, { Client } from './api';
 
 interface AuthContextProps {
-  isAuthenticated: boolean;
-  client: Client | null;
-  loginUser: (token: string, url: string) => void;
-  logoutUser: () => void;
+  hasCredentials: boolean;
+  setToLocalStorage: (url: string, token: string) => void;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    localStorage.getItem('refresh_token') !== null && localStorage.getItem('base_url') !== null
+  const [hasCredentials] = useState(
+    localStorage.getItem('base_url') !== null && localStorage.getItem('refresh_token') !== null
   );
 
-  const loginUser = async (refreshToken: string, baseUrl: string) => {
-    client.setAuth({ refreshToken, baseUrl });
-    try {
-      const accessToken = await client.authorize();
-      if (accessToken) {
-        setIsAuthenticated(true);
-      }
-    } catch (e) {
-      throw new Error('Authorisation failed');
-    }
+  const setToLocalStorage = (url: string, token: string) => {
+    localStorage.setItem('base_url', url);
+    localStorage.setItem('refresh_token', token);
   };
 
-  const logoutUser = () => {
+  const logout = () => {
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('base_url');
-
-    setIsAuthenticated(false);
   };
 
   return (
-    <AuthContext.Provider value={{ client, isAuthenticated, loginUser, logoutUser }}>
+    <AuthContext.Provider value={{ hasCredentials, setToLocalStorage, logout }}>
       {children}
     </AuthContext.Provider>
   );

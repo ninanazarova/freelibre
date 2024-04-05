@@ -37,7 +37,7 @@ export class Client {
     this.accessToken = { tokenString: '', expiresAt: null };
   }
 
-  setAuth({ baseUrl, refreshToken }: { baseUrl: string; refreshToken: string }) {
+  public setAuth({ baseUrl, refreshToken }: { baseUrl: string; refreshToken: string }) {
     this.baseUrl = baseUrl;
     this.refreshToken = refreshToken;
   }
@@ -182,8 +182,8 @@ export class Client {
 }
 
 const client = new Client(
-  JSON.parse(localStorage.getItem('refresh_token') as string),
-  JSON.parse(localStorage.getItem('base_url') as string)
+  localStorage.getItem('refresh_token') as string,
+  localStorage.getItem('base_url') as string
 );
 
 export default client;
