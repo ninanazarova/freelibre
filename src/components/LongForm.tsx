@@ -66,6 +66,7 @@ const LongForm = () => {
               startDecorator={<Typography fontSize={'inherit'}>Insulin</Typography>}
               endDecorator={'units'}
               slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
+              required
             />
           </FormControl>
           <FormControl>
@@ -76,6 +77,7 @@ const LongForm = () => {
               size='lg'
               value={dateTime}
               onChange={(e) => setDateTime(e.target.value)}
+              required
             />
           </FormControl>
 

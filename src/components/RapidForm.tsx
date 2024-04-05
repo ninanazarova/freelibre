@@ -29,6 +29,7 @@ export async function action({ request }: ActionFunctionArgs) {
     notes: formData.get('notes') as string,
     date: dateTime,
   };
+
   await client.postTreatment(data);
   return redirect('/overview');
 }
@@ -66,6 +67,7 @@ const RapidForm = () => {
               startDecorator={<Typography fontSize={'inherit'}>Insulin</Typography>}
               endDecorator={'units'}
               slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
+              required
             />
           </FormControl>
 
@@ -77,6 +79,7 @@ const RapidForm = () => {
               size='lg'
               value={dateTime}
               onChange={(e) => setDateTime(e.target.value)}
+              required
             />
           </FormControl>
           <FormControl>

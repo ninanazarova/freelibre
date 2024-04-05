@@ -98,6 +98,7 @@ const MealForm = () => {
               size='lg'
               value={dateTime}
               onChange={(e) => setDateTime(e.target.value)}
+              required
             />
           </FormControl>
 
