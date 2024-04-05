@@ -64,6 +64,7 @@ const ExerciseForm = () => {
               startDecorator={<Typography fontSize={'inherit'}>Duration</Typography>}
               endDecorator={'min'}
               slotProps={{ input: { inputMode: 'numeric', pattern: '[0-9]*' } }}
+              required
             />
           </FormControl>
           <FormControl>
@@ -74,6 +75,7 @@ const ExerciseForm = () => {
               size='lg'
               value={dateTime}
               onChange={(e) => setDateTime(e.target.value)}
+              required
             />
           </FormControl>
 
