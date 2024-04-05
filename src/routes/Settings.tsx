@@ -9,11 +9,12 @@ import {
   Typography,
 } from '@mui/joy';
 import { ListItem } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../SetupContext';
 
 const Settings = () => {
-  const { logoutUser } = useAuth();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   return (
     <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
       <Typography level='h2'>Settings</Typography>
@@ -58,7 +59,14 @@ const Settings = () => {
           </ListItemButton>
         </ListItem>
       </List>
-      <Button color='danger' onClick={logoutUser} size='lg'>
+      <Button
+        color='danger'
+        onClick={() => {
+          logout();
+          navigate('/login');
+        }}
+        size='lg'
+      >
         Logout
       </Button>
     </Stack>

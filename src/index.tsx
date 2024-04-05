@@ -17,18 +17,34 @@ import Treatment, { loader as treatmentLoader } from './routes/Treatment';
 import Settings from './routes/Settings';
 import NightscoutUrl from './routes/NightscoutUrl';
 import RefreshToken from './routes/RefreshToken';
+import client from './api';
 
 import { AuthProvider, useAuth } from './SetupContext';
 
 function Index() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { hasCredentials } = useAuth();
 
   useEffect(() => {
-    isAuthenticated
-      ? navigate('/overview', { replace: true })
-      : navigate('/login', { replace: true });
-  }, [isAuthenticated, navigate]);
+    async function manageNavigation() {
+      if (!hasCredentials) {
+        navigate('/login', { replace: true });
+        return;
+      }
+
+      try {
+        const response = await client.authorize();
+
+        response
+          ? navigate('/overview', { replace: true })
+          : navigate('/login', { replace: true, state: { hasBadCredentials: true } });
+      } catch (e) {
+        navigate('/login', { replace: true });
+      }
+    }
+
+    manageNavigation();
+  }, [hasCredentials, navigate]);
 
   return <Outlet />;
 }
