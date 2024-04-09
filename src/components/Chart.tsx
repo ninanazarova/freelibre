@@ -56,17 +56,24 @@ const merge = (es: Entry[], ts: Treatment[]): Array<Record> => {
 type Props = {
   entries: Entry[];
   treatments: Treatment[];
+  treatment?: Treatment;
 };
 
-const Chart = ({ entries, treatments }: Props) => {
+const Chart = ({ entries, treatments, treatment }: Props) => {
   const x: number[] = [];
   const eSerie: Array<null | number> = [];
   const tSerie: Array<null | number> = [];
 
+  let mainTreatIndex = 0;
+
   const merged = merge(entries, treatments);
   for (let i = 0; i < merged.length; i++) {
     if (merged[i].isTreatment) {
+      if (merged[i].date === treatment?.date) {
+        mainTreatIndex = i;
+      }
       x.push(merged[i].date);
+
       // TODO: check which mbg value to push i+1 or i-1 and check if not null
       if (merged[i + 1] !== undefined) {
         tSerie.push(merged[i + 1].mbg);
@@ -82,6 +89,12 @@ const Chart = ({ entries, treatments }: Props) => {
     }
   }
 
+  const meSerie: Array<null | number> = new Array(x.length).fill(null);
+
+  if (treatment) {
+    meSerie[mainTreatIndex] = eSerie[mainTreatIndex];
+  }
+
   return (
     <ResponsiveChartContainer
       sx={{ bgcolor: 'white' }}
@@ -90,6 +103,7 @@ const Chart = ({ entries, treatments }: Props) => {
       series={[
         { type: 'line', data: eSerie, color: 'black', showMark: false },
         { type: 'line', data: tSerie, color: 'red', showMark: true },
+        { type: 'line', data: meSerie, color: 'green', showMark: true },
       ]}
       xAxis={[
         {
@@ -115,6 +129,7 @@ const Chart = ({ entries, treatments }: Props) => {
 
       <NormalRange />
       <LinePlot />
+      <MarkPlot />
       <MarkPlot />
 
       <ChartsAxisHighlight x='line' />
