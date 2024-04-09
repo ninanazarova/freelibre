@@ -2,7 +2,13 @@ import React, { StrictMode, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import '@fontsource/inter';
 import './index.css';
-import { createBrowserRouter, Outlet, RouterProvider, useNavigate } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  Outlet,
+  RouterProvider,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import LoginPage from './routes/LoginPage';
 import App from './routes/App';
 import ErrorPage from './ErrorPage';
@@ -24,6 +30,7 @@ import { AuthProvider, useAuth } from './SetupContext';
 function Index() {
   const navigate = useNavigate();
   const { hasCredentials } = useAuth();
+  const location = useLocation();
 
   useEffect(() => {
     async function manageNavigation() {
@@ -34,10 +41,13 @@ function Index() {
 
       try {
         const response = await client.authorize();
-
-        response
-          ? navigate('/overview', { replace: true })
-          : navigate('/login', { replace: true, state: { hasBadCredentials: true } });
+        if (response) {
+          location.pathname === '/'
+            ? navigate('/overview', { replace: true })
+            : navigate(location.pathname, { replace: true });
+        } else {
+          navigate('/login', { replace: true, state: { hasBadCredentials: true } });
+        }
       } catch (e) {
         navigate('/login', { replace: true });
       }
