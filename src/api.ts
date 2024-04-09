@@ -6,6 +6,7 @@ import Rapid from './models/RapidModel';
 import Long from './models/LongModel';
 import Exercise from './models/ExerciseModel';
 import Treatment from './models/TreatmentModel';
+import dayjs from 'dayjs';
 
 type AccessToken = {
   tokenString: string;
@@ -54,7 +55,6 @@ export class Client {
       return null;
     }
   }
-
   private async refreshAccessToken(): Promise<AccessToken> {
     if (this.accessToken.expiresAt !== null && this.accessToken.expiresAt > new Date()) {
       return this.accessToken;
@@ -68,6 +68,41 @@ export class Client {
     return this.accessToken;
   }
 
+  public async getEntriesForTreatment(
+    treatmentDate: number,
+    hoursInterval: number = 12
+  ): Promise<Entry[] | []> {
+    const token = await this.refreshAccessToken();
+    const url = this.baseUrl + `/api/v3/entries`;
+
+    const half = (hoursInterval * 60) / 2;
+    const before = +dayjs(treatmentDate).subtract(half, 'minutes');
+    const after = +dayjs(treatmentDate).add(half, 'minutes');
+
+    try {
+      const {
+        data: { result },
+      } = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token.tokenString}`,
+        },
+        params: {
+          date$gte: before,
+          sort: 'date',
+          fields: 'date,identifier,sgv',
+        },
+      });
+
+      const entries = result
+        .filter((e: any) => e.date <= after)
+        .map((e: any) => ({ ...e, mbg: sgvToMbg(e.sgv) }));
+
+      return entries;
+    } catch (error) {
+      console.error(error);
+    }
+    return [];
+  }
   public async getEntries(): Promise<Entry[] | []> {
     const token = await this.refreshAccessToken();
     const url = this.baseUrl + `/api/v3/entries`;
@@ -115,6 +150,38 @@ export class Client {
       });
 
       return result;
+    } catch (error) {
+      console.error(error);
+    }
+    return [];
+  }
+  public async getTreatmentsForTreatment(
+    treatmentDate: number,
+    hoursInterval: number = 12
+  ): Promise<Treatment[] | []> {
+    const token = await this.refreshAccessToken();
+    const url = this.baseUrl + `/api/v3/treatments`;
+
+    const half = (hoursInterval * 60) / 2;
+    const before = +dayjs(treatmentDate).subtract(half, 'minutes');
+    const after = +dayjs(treatmentDate).add(half, 'minutes');
+
+    try {
+      const {
+        data: { result },
+      } = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token.tokenString}`,
+        },
+        params: {
+          date$gte: before,
+          sort$desc: 'date',
+        },
+      });
+
+      const treatments = result.filter((t: any) => t.date <= after);
+
+      return treatments;
     } catch (error) {
       console.error(error);
     }
