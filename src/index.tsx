@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import '@fontsource/inter';
 import './index.css';
 import {
-  createBrowserRouter,
+  createHashRouter,
   Outlet,
   RouterProvider,
   useLocation,
@@ -59,38 +59,33 @@ function Index() {
   return <Outlet />;
 }
 
-const router = createBrowserRouter(
-  [
-    {
-      path: '/',
-      element: <Index />,
-      errorElement: <ErrorPage />,
-      children: [
-        { path: 'login', element: <LoginPage /> },
-        {
-          path: '/',
-          element: <App />,
-          children: [
-            { path: 'overview', element: <Overview />, loader: overviewLoader },
-            { path: 'new', element: <New /> },
-            { path: 'new/meal', element: <MealForm />, action: mealFormAction },
-            { path: 'new/rapid', element: <RapidForm />, action: rapidFormAction },
-            { path: 'new/long', element: <LongForm />, action: longFormAction },
-            { path: 'new/exercise', element: <ExerciseForm />, action: exerciseFormAction },
-            { path: 'search', element: <Search />, loader: searchLoader },
-            { path: 'search/:treatmentId', element: <Treatment />, loader: treatmentLoader },
-            { path: 'settings', element: <Settings /> },
-            { path: 'settings/nightscout-url', element: <NightscoutUrl /> },
-            { path: 'settings/refresh-token', element: <RefreshToken /> },
-          ],
-        },
-      ],
-    },
-  ],
+const router = createHashRouter([
   {
-    basename: 'https://ninanazarova.github.io/freelibre/',
-  }
-);
+    path: '/',
+    element: <Index />,
+    errorElement: <ErrorPage />,
+    children: [
+      { path: 'login', element: <LoginPage /> },
+      {
+        path: '/',
+        element: <App />,
+        children: [
+          { path: 'overview', element: <Overview />, loader: overviewLoader },
+          { path: 'new', element: <New /> },
+          { path: 'new/meal', element: <MealForm />, action: mealFormAction },
+          { path: 'new/rapid', element: <RapidForm />, action: rapidFormAction },
+          { path: 'new/long', element: <LongForm />, action: longFormAction },
+          { path: 'new/exercise', element: <ExerciseForm />, action: exerciseFormAction },
+          { path: 'search', element: <Search />, loader: searchLoader },
+          { path: 'search/:treatmentId', element: <Treatment />, loader: treatmentLoader },
+          { path: 'settings', element: <Settings /> },
+          { path: 'settings/nightscout-url', element: <NightscoutUrl /> },
+          { path: 'settings/refresh-token', element: <RefreshToken /> },
+        ],
+      },
+    ],
+  },
+]);
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
