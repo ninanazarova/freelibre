@@ -13,7 +13,9 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../SetupContext';
 
 const Settings = () => {
-  const { logout } = useAuth();
+  const { getBaseUrl, getRefreshToken, logout } = useAuth();
+  const baseUrl = getBaseUrl();
+  const refreshToken = getRefreshToken();
   const navigate = useNavigate();
   return (
     <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
@@ -47,14 +49,20 @@ const Settings = () => {
       >
         <ListItem>
           <ListItemButton component={RouterLink} to='nightscout-url'>
-            <ListItemContent>NightScout URL</ListItemContent>
+            <ListItemContent>URL</ListItemContent>
+            <Typography noWrap sx={{ color: 'neutral.500' }}>
+              {baseUrl ? baseUrl : 'Is not set'}
+            </Typography>
             <KeyboardArrowRight fontSize='small' />
           </ListItemButton>
         </ListItem>
         <ListDivider />
         <ListItem>
-          <ListItemButton component={RouterLink} to='access-token'>
+          <ListItemButton component={RouterLink} to='refresh-token'>
             <ListItemContent>Token</ListItemContent>
+            <Typography noWrap sx={{ color: 'neutral.500' }}>
+              {refreshToken ? refreshToken : 'Is not set'}
+            </Typography>
             <KeyboardArrowRight fontSize='small' />
           </ListItemButton>
         </ListItem>

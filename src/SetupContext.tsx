@@ -2,7 +2,10 @@ import React, { createContext, useContext, useState } from 'react';
 
 interface AuthContextProps {
   hasCredentials: boolean;
-  setToLocalStorage: (url: string, token: string) => void;
+  getBaseUrl: () => string | null;
+  setBaseUrl: (url: string) => void;
+  getRefreshToken: () => string | null;
+  setRefreshToken: (token: string) => void;
   logout: () => void;
 }
 
@@ -13,8 +16,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.getItem('base_url') !== null && localStorage.getItem('refresh_token') !== null
   );
 
-  const setToLocalStorage = (url: string, token: string) => {
+  const getBaseUrl = () => {
+    return localStorage.getItem('base_url');
+  };
+  const setBaseUrl = (url: string) => {
     localStorage.setItem('base_url', url);
+  };
+
+  const getRefreshToken = () => {
+    return localStorage.getItem('refresh_token');
+  };
+  const setRefreshToken = (token: string) => {
     localStorage.setItem('refresh_token', token);
   };
 
@@ -24,7 +36,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ hasCredentials, setToLocalStorage, logout }}>
+    <AuthContext.Provider
+      value={{ hasCredentials, getBaseUrl, setBaseUrl, getRefreshToken, setRefreshToken, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
