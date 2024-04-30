@@ -54,7 +54,7 @@ function Index() {
     }
 
     manageNavigation();
-  }, [hasCredentials, navigate]);
+  }, [hasCredentials, location.pathname, navigate]);
 
   return <Outlet />;
 }
