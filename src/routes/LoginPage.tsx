@@ -17,7 +17,7 @@ const LoginPage = () => {
   const [url, setUrl] = useState('');
   const [token, setToken] = useState('');
   const [showInfo, setShowInfo] = useState(false);
-  const { setToLocalStorage } = useAuth();
+  const { setBaseUrl, setRefreshToken } = useAuth();
   const navigate = useNavigate();
   let location = useLocation();
 
@@ -30,7 +30,8 @@ const LoginPage = () => {
       const response = await client.authorize();
 
       if (response) {
-        setToLocalStorage(url, token);
+        setBaseUrl(url);
+        setRefreshToken(token);
         navigate('/overview', { replace: true });
       } else {
         setShowInfo(true);
@@ -64,7 +65,6 @@ const LoginPage = () => {
         sx={{ px: 4, minHeight: '100vh', bgcolor: 'background.level1' }}
       >
         <Typography level='h3'>Set up your Libra</Typography>
-
         {location.state?.hasBadCredentials && (
           <Typography color='warning' level='title-md' variant='soft'>
             Your credentials have expired. Log in again
