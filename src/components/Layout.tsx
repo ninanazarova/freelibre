@@ -80,9 +80,11 @@ function Main(props: BoxProps) {
   );
 }
 
-export default {
+const exported = {
   Root,
   SideNav,
   SidePane,
   Main,
 };
+
+export default exported;
