@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import '@fontsource/inter';
 import './index.css';
 import {
-  createHashRouter,
+  createBrowserRouter,
   Outlet,
   RouterProvider,
   useLocation,
@@ -54,12 +54,12 @@ function Index() {
     }
 
     manageNavigation();
-  }, [hasCredentials, location.pathname, navigate]);
+  }, [hasCredentials, navigate]);
 
   return <Outlet />;
 }
 
-const router = createHashRouter([
+const router = createBrowserRouter([
   {
     path: '/',
     element: <Index />,
