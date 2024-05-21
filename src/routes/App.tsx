@@ -1,12 +1,5 @@
 import * as React from 'react';
 
-import Box from '@mui/joy/Box';
-
-import Typography from '@mui/joy/Typography';
-import Button from '@mui/joy/Button';
-
-import AddIcon from '@mui/icons-material/Add';
-
 import Layout from '../components/Layout';
 import Navigation from '../components/Navigation';
 
@@ -32,23 +25,6 @@ function App() {
         <Layout.SideNav>
           <Navigation />
         </Layout.SideNav>
-        <Layout.SidePane>
-          <Box
-            sx={{
-              p: 2,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Typography level='title-lg' textColor='text.secondary' component='h1'>
-              Treatments
-            </Typography>
-            <Button startDecorator={<AddIcon />} size='sm'>
-              Add new
-            </Button>
-          </Box>
-        </Layout.SidePane>
         <Layout.Main>
           <Snackbar
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
