@@ -1,5 +1,4 @@
 import * as React from 'react';
-import Chip from '@mui/joy/Chip';
 import List from '@mui/joy/List';
 import ListSubheader from '@mui/joy/ListSubheader';
 import ListItem from '@mui/joy/ListItem';
@@ -7,17 +6,26 @@ import ListItemButton from '@mui/joy/ListItemButton';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import ListItemContent from '@mui/joy/ListItemContent';
 
-import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
-import AssignmentIndRoundedIcon from '@mui/icons-material/AssignmentIndRounded';
-import ArticleRoundedIcon from '@mui/icons-material/ArticleRounded';
-import AccountTreeRoundedIcon from '@mui/icons-material/AccountTreeRounded';
-import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import AddIcon from '@mui/icons-material/Add';
+import Search from '@mui/icons-material/Search';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { Link as RouterLink } from 'react-router-dom';
+import { useState } from 'react';
 
 export default function Navigation() {
+  const [index, setIndex] = useState(0);
   return (
-    <List size='sm' sx={{ '--ListItem-radius': 'var(--joy-radius-sm)', '--List-gap': '4px' }}>
+    <List
+      size='sm'
+      sx={{
+        '--ListItem-radius': 'var(--joy-radius-sm)',
+        '--List-gap': '4px',
+        textDecoration: 'none',
+      }}
+    >
       <ListItem nested>
-        <ListSubheader sx={{ letterSpacing: '2px', fontWeight: '800' }}>Browse</ListSubheader>
+        <ListSubheader sx={{ letterSpacing: '2px', fontWeight: '800' }}>FreeLibre</ListSubheader>
         <List
           aria-labelledby='nav-list-browse'
           sx={{
@@ -25,46 +33,58 @@ export default function Navigation() {
           }}
         >
           <ListItem>
-            <ListItemButton selected>
+            <ListItemButton
+              component={RouterLink}
+              to='overview'
+              selected={index === 0}
+              onClick={() => setIndex(0)}
+            >
               <ListItemDecorator>
-                <PeopleRoundedIcon fontSize='small' />
+                <HomeRoundedIcon fontSize='small' />
               </ListItemDecorator>
-              <ListItemContent>People</ListItemContent>
+              <ListItemContent>Overview</ListItemContent>
             </ListItemButton>
           </ListItem>
+
           <ListItem>
-            <ListItemButton>
+            <ListItemButton
+              component={RouterLink}
+              to='new'
+              selected={index === 1}
+              onClick={() => setIndex(1)}
+            >
               <ListItemDecorator sx={{ color: 'neutral.500' }}>
-                <AssignmentIndRoundedIcon fontSize='small' />
+                <AddIcon fontSize='small' />
               </ListItemDecorator>
-              <ListItemContent>Managing accounts</ListItemContent>
+              <ListItemContent>New Treatment</ListItemContent>
             </ListItemButton>
           </ListItem>
+
           <ListItem>
-            <ListItemButton>
+            <ListItemButton
+              component={RouterLink}
+              to='search'
+              selected={index === 2}
+              onClick={() => setIndex(2)}
+            >
               <ListItemDecorator sx={{ color: 'neutral.500' }}>
-                <AccountTreeRoundedIcon fontSize='small' />
+                <Search fontSize='small' />
               </ListItemDecorator>
-              <ListItemContent>Org chart</ListItemContent>
+              <ListItemContent>Search</ListItemContent>
             </ListItemButton>
           </ListItem>
+
           <ListItem>
-            <ListItemButton>
+            <ListItemButton
+              component={RouterLink}
+              to='settings'
+              selected={index === 3}
+              onClick={() => setIndex(3)}
+            >
               <ListItemDecorator sx={{ color: 'neutral.500' }}>
-                <TodayRoundedIcon fontSize='small' />
+                <SettingsIcon fontSize='small' />
               </ListItemDecorator>
-              <ListItemContent>Time off</ListItemContent>
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton>
-              <ListItemDecorator sx={{ color: 'neutral.500' }}>
-                <ArticleRoundedIcon fontSize='small' />
-              </ListItemDecorator>
-              <ListItemContent>Policies</ListItemContent>
-              <Chip variant='soft' color='warning' size='sm'>
-                2
-              </Chip>
+              <ListItemContent>Settings</ListItemContent>
             </ListItemButton>
           </ListItem>
         </List>
