@@ -1,143 +1,211 @@
-import Entry from '../models/EntryModel';
-import Treatment from '../models/TreatmentModel';
-
-import dayjs from 'dayjs';
 import {
-  ChartsAxisHighlight,
-  ChartsReferenceLine,
-  ChartsTooltip,
-  ChartsXAxis,
-  ChartsYAxis,
-  LinePlot,
-  MarkPlot,
-  ResponsiveChartContainer,
-  useDrawingArea,
-  useYScale,
-} from '@mui/x-charts';
+  Chart as ChartJS,
+  LinearScale,
+  CategoryScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Tooltip,
+  LineController,
+  BarController,
+  ChartOptions,
+  TimeScale,
+  ChartData,
+  Plugin,
+  ChartType,
+} from 'chart.js';
 
-const NormalRange = () => {
-  const low = 5;
-  const high = 10;
-  const { left, width } = useDrawingArea();
-  const scale = useYScale();
-  const highY = scale(high);
-  const lowY = scale(low);
+import 'chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm';
+import { Chart as ChartComponent } from 'react-chartjs-2';
+import Entry from '../models/EntryModel';
+import Treatment, { eventType } from '../models/TreatmentModel';
+import { Box } from '@mui/joy';
+import dayjs from 'dayjs';
+import { useState } from 'react';
 
-  return <rect x={left} y={highY} width={width} height={lowY - highY} fill='#f3f9eb' />;
-};
+ChartJS.register(
+  LinearScale,
+  CategoryScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Tooltip,
+  LineController,
+  BarController,
+  TimeScale
+);
 
-interface Record {
-  date: number;
-  isTreatment?: boolean;
-  mbg: number | null;
-}
-const merge = (es: Entry[], ts: Treatment[]): Array<Record> => {
-  let res = [];
-
-  let i = 0;
-  let j = 0;
-
-  while (i < es.length && j < ts.length) {
-    if (es[i].date >= ts[j].date) {
-      res.push({ ...ts[j], isTreatment: true, mbg: null });
-      j++;
-    } else {
-      res.push(es[i]);
-      i++;
-    }
+declare module 'chart.js' {
+  interface PluginOptionsByType<TType extends ChartType> {
+    fillBetweenLines?: {
+      color: string;
+      minY: number;
+      maxY: number;
+    };
   }
+}
 
-  for (; i < es.length; i++) res.push(es[i]);
-  for (; j < ts.length; j++) res.push({ ...ts[j], isTreatment: true, mbg: null });
+const customFillPlugin: Plugin = {
+  id: 'fillBetweenLines',
+  beforeDraw(chart, args, options) {
+    const {
+      ctx,
+      chartArea: { left, right },
+      scales: { y },
+    } = chart;
+    if (!options.minY || !options.maxY) return;
 
-  return res;
+    const yMin = y.getPixelForValue(options.minY);
+    const yMax = y.getPixelForValue(options.maxY);
+
+    ctx.save();
+    ctx.fillStyle = options.color || 'rgba(0, 0, 0, 0.1)';
+
+    ctx.fillRect(left, yMax, right - left, yMin - yMax);
+    ctx.restore();
+  },
 };
+ChartJS.register(customFillPlugin);
 
 type Props = {
   entries: Entry[];
   treatments: Treatment[];
   treatment?: Treatment;
 };
+type treatSerie = {
+  date: number;
+  mbg: number | null;
+  eventType: string;
+  notes: string;
+};
 
-const Chart = ({ entries, treatments, treatment }: Props) => {
-  const x: number[] = [];
-  const eSerie: Array<null | number> = [];
-  const tSerie: Array<null | number> = [];
+const Chart = ({ entries, treatments }: Props) => {
+  const THRESHOLD = 5 * 60 * 1000;
+  const [treatSeries] = useState(
+    treatments.map((treatment) => {
+      // Find the closest entry to the treatment time within the threshold
+      const closestEntry = entries.reduce((closest, entry) => {
+        const timeDiff = Math.abs(entry.date - treatment.date);
+        return timeDiff < Math.abs(closest.date - treatment.date) && timeDiff <= THRESHOLD
+          ? entry
+          : closest;
+      }, entries[0]);
 
-  let mainTreatIndex = 0;
+      return {
+        date: treatment.date,
+        mbg: closestEntry.mbg,
+        eventType: treatment.eventType,
+        notes: treatment.notes,
+      };
+    })
+  );
 
-  const merged = merge(entries, treatments);
-  for (let i = 0; i < merged.length; i++) {
-    if (merged[i].isTreatment) {
-      if (merged[i].date === treatment?.date) {
-        mainTreatIndex = i;
-      }
-      x.push(merged[i].date);
-
-      // TODO: check which mbg value to push i+1 or i-1 and check if not null
-      if (merged[i + 1] !== undefined) {
-        tSerie.push(merged[i + 1].mbg);
-        eSerie.push(merged[i + 1].mbg);
-      } else {
-        tSerie.push(merged[i - 1].mbg);
-        eSerie.push(merged[i - 1].mbg);
-      }
-    } else {
-      x.push(merged[i].date);
-      tSerie.push(null);
-      eSerie.push(merged[i].mbg);
-    }
-  }
-
-  const meSerie: Array<null | number> = new Array(x.length).fill(null);
-
-  if (treatment) {
-    meSerie[mainTreatIndex] = eSerie[mainTreatIndex];
-  }
+  const data: ChartData<'line', Entry[] | treatSerie[]> = {
+    datasets: [
+      {
+        label: 'Entries',
+        pointStyle: false,
+        borderColor: '#000',
+        borderWidth: 2,
+        borderJoinStyle: 'round',
+        data: entries,
+        order: 2,
+      },
+      {
+        label: 'Treatments',
+        pointStyle: 'circle',
+        showLine: false,
+        borderColor: 'red',
+        borderWidth: 2,
+        data: treatSeries,
+        order: 1,
+      },
+    ],
+  };
+  const options: ChartOptions = {
+    elements: {
+      line: {
+        tension: 1,
+      },
+    },
+    plugins: {
+      fillBetweenLines: {
+        minY: 5,
+        maxY: 10,
+        color: '#f3f9eb',
+      },
+      tooltip: {
+        intersect: false,
+        callbacks: {
+          title: (tooltipItems) => dayjs(tooltipItems[0].parsed.x).format('HH:mm'),
+          label: (tooltipItem) => {
+            if (tooltipItem.datasetIndex === 1) {
+              return `${(tooltipItem.raw as treatSerie).eventType}`;
+            }
+            return `${tooltipItem.parsed.y} mmol/l`;
+          },
+          afterLabel: (tooltipItem) => {
+            if (tooltipItem.datasetIndex === 1) {
+              return `${tooltipItem.parsed.y} mmol/l`;
+            }
+          },
+        },
+      },
+    },
+    parsing: {
+      xAxisKey: 'date',
+      yAxisKey: 'mbg',
+    },
+    scales: {
+      x: {
+        grid: {
+          drawOnChartArea: false,
+        },
+        time: { unit: 'hour', displayFormats: { hour: 'HH:mm' } },
+        ticks: {
+          autoSkip: false,
+          align: 'start',
+          maxTicksLimit: 8,
+          stepSize: 2,
+        },
+        type: 'time',
+      },
+      y: {
+        bounds: 'data',
+        min: 0,
+        max: 20,
+        ticks: {
+          maxTicksLimit: 6,
+        },
+        grid: {
+          drawTicks: false,
+        },
+      },
+    },
+    layout: {
+      padding: {
+        left: 5,
+        right: 20,
+        bottom: 0,
+        top: 10,
+      },
+    },
+    maintainAspectRatio: false,
+  };
+  const plugins: Plugin[] = [customFillPlugin];
 
   return (
-    <ResponsiveChartContainer
-      sx={{ bgcolor: 'white' }}
-      height={400}
-      margin={{ top: 20, bottom: 40, left: 30, right: 30 }}
-      series={[
-        { type: 'line', data: eSerie, color: 'black', showMark: false },
-        { type: 'line', data: tSerie, color: 'red', showMark: true },
-        { type: 'line', data: meSerie, color: 'green', showMark: true },
-      ]}
-      xAxis={[
-        {
-          id: 'datetime',
-          data: x,
-          scaleType: 'time',
-          valueFormatter: (v) => dayjs(v).format('HH:mm'),
-        },
-      ]}
-      yAxis={[
-        {
-          id: 'glucose',
-          min: 3,
-          max: 20,
-          valueFormatter: (v: number) => v.toString(),
-        },
-      ]}
+    <Box
+      sx={{
+        background: 'white',
+        position: 'relative',
+        margin: 'auto',
+        height: '45vh',
+        maxWidth: '100vw',
+      }}
     >
-      <ChartsReferenceLine y={20} lineStyle={{ stroke: '#cecece' }} />
-      <ChartsReferenceLine y={15} lineStyle={{ stroke: '#cecece' }} />
-      <ChartsReferenceLine y={10} lineStyle={{ stroke: '#cecece' }} />
-      <ChartsReferenceLine y={5} lineStyle={{ stroke: '#cecece' }} />
-
-      <NormalRange />
-      <LinePlot />
-      <MarkPlot />
-      <MarkPlot />
-
-      <ChartsAxisHighlight x='line' />
-      <ChartsTooltip trigger='axis' />
-
-      <ChartsXAxis axisId='datetime' />
-      <ChartsYAxis axisId='glucose' disableLine={true} disableTicks={true} />
-    </ResponsiveChartContainer>
+      <ChartComponent type='line' data={data} options={options} plugins={plugins} />
+    </Box>
   );
 };
 
