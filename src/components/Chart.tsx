@@ -17,8 +17,9 @@ import {
 
 import 'chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm';
 import { Chart as ChartComponent } from 'react-chartjs-2';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import Entry from '../models/EntryModel';
-import Treatment, { eventType } from '../models/TreatmentModel';
+import Treatment from '../models/TreatmentModel';
 import { Box } from '@mui/joy';
 import dayjs from 'dayjs';
 import { useState } from 'react';
@@ -34,6 +35,7 @@ ChartJS.register(
   BarController,
   TimeScale
 );
+ChartJS.register(zoomPlugin);
 
 declare module 'chart.js' {
   interface PluginOptionsByType<TType extends ChartType> {
@@ -151,6 +153,27 @@ const Chart = ({ entries, treatments }: Props) => {
           },
         },
       },
+      zoom: {
+        pan: {
+          enabled: true,
+          mode: 'x',
+        },
+        zoom: {
+          wheel: {
+            enabled: true,
+          },
+          pinch: {
+            enabled: true,
+          },
+          mode: 'x',
+        },
+        limits: {
+          x: {
+            min: 'original',
+            max: 'original',
+          },
+        },
+      },
     },
     parsing: {
       xAxisKey: 'date',
@@ -187,7 +210,7 @@ const Chart = ({ entries, treatments }: Props) => {
         left: 5,
         right: 20,
         bottom: 0,
-        top: 10,
+        top: 15,
       },
     },
     maintainAspectRatio: false,

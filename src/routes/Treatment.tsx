@@ -4,7 +4,6 @@ import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import TreatmentModel from '../models/TreatmentModel';
 import Chart from '../components/Chart';
 import Entry from '../models/EntryModel';
-import TimeControls from '../components/TimeControls';
 import dayjs from 'dayjs';
 import RecentTreatments from '../components/RecentTreatments';
 import { sgvToMbg } from '../helpers';
@@ -29,7 +28,6 @@ const Treatment = () => {
     <Box>
       {entries.length && (
         <>
-          <TimeControls />
           <Chart
             treatment={treatment}
             treatments={treatments.slice().reverse()}

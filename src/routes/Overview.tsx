@@ -6,7 +6,6 @@ import Entry from '../models/EntryModel';
 import Treatment from '../models/TreatmentModel';
 import client from '../api';
 import { useLoaderData } from 'react-router-dom';
-import TimeControls from '../components/TimeControls';
 
 export async function loader() {
   const result = await client.authorize();
@@ -33,7 +32,6 @@ const Overview = () => {
       {entries.length ? (
         <>
           <CurrentGlucose direction={lastEntry.direction} mbg={lastEntry.mbg as number} />
-          <TimeControls />
           <Chart treatments={treatments.slice().reverse()} entries={entries} />
           <RecentTreatments treatments={treatments} />
         </>
