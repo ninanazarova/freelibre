@@ -45,7 +45,7 @@ const MealForm = () => {
   return (
     <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
       <Typography level='h2'>Meal</Typography>
-      <Form method='post' onSubmit={(e) => onShowAlert('Your meal has been added succesfully')}>
+      <Form method='post' onSubmit={(e) => onShowAlert('Your Meal has been added')}>
         <Stack
           spacing={2}
           sx={{

@@ -41,7 +41,7 @@ const ExerciseForm = () => {
   return (
     <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
       <Typography level='h2'>Exercise</Typography>
-      <Form method='post' onSubmit={(e) => onShowAlert('Your exercise has been added succesfully')}>
+      <Form method='post' onSubmit={(e) => onShowAlert('Your Exercise has been added')}>
         <Stack
           spacing={2}
           sx={{

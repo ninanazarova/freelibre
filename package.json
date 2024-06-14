@@ -9,8 +9,6 @@
     "@mui/icons-material": "^5.15.6",
     "@mui/joy": "^5.0.0-beta.24",
     "@mui/material": "^5.15.6",
-    "@mui/x-charts": "^6.19.1",
-    "@mui/x-date-pickers": "^6.19.3",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -20,8 +18,12 @@
     "@types/react-dom": "^18.2.18",
     "@vitejs/plugin-react": "^4.2.1",
     "axios": "^1.6.5",
-    "dayjs": "^1.11.10",
+    "chart.js": "^4.4.3",
+    "chartjs-adapter-dayjs-4": "^1.0.4",
+    "chartjs-plugin-zoom": "^2.0.1",
+    "dayjs": "^1.11.11",
     "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.3",
     "typescript": "^3.9.10",
@@ -30,7 +32,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "vite",
+    "start": "vite --host",
     "build": "vite build",
     "preview": "vite preview"
   },
