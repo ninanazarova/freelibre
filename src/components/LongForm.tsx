@@ -40,10 +40,7 @@ const LongForm = () => {
   return (
     <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
       <Typography level='h2'>Long</Typography>
-      <Form
-        method='post'
-        onSubmit={(e) => onShowAlert('Your Long Treat has been added succesfully')}
-      >
+      <Form method='post' onSubmit={(e) => onShowAlert('Your Long Treat has been added')}>
         <Stack
           spacing={2}
           sx={{
