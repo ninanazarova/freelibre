@@ -12,7 +12,7 @@ A standout feature of freelibre is the ability to search food intakes and view r
 
 ### Roadmap
 Development is ongoing with the following goals:
-- Replace MUI charts with chart.js; add touch event support
+- ~~Replace MUI charts with chart.js; add touch event support~~ :white_check_mark:
 - Implement PWA offline capabilities
 - Create a flexible analytics report page
 - Add more search filters
