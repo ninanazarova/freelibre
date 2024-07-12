@@ -18,6 +18,7 @@ import Meal from '../models/MealModel';
 import { eventType } from '../models/TreatmentModel';
 import { useOnShowAlert } from '../routes/Root';
 import { useState } from 'react';
+import ContentWrapper from './ContentWrapper';
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -43,17 +44,13 @@ const MealForm = () => {
   const [dateTime, setDateTime] = useState(dayjs(new Date()).format('YYYY-MM-DDTHH:mm'));
 
   return (
-    <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
-      <Typography level='h2'>Meal</Typography>
+    <ContentWrapper title='Meal'>
       <Form method='post' onSubmit={(e) => onShowAlert('Your Meal has been added')}>
         <Stack
           spacing={2}
           sx={{
             [`& .${inputClasses.root}`]: {
               '--Input-focusedThickness': '1px',
-            },
-            [`& .${inputClasses.input}`]: {
-              width: '100%',
             },
             [`& .${textareaClasses.root}`]: {
               '--Textarea-focusedThickness': '1px',
@@ -112,7 +109,7 @@ const MealForm = () => {
           </Button>
         </Stack>
       </Form>
-    </Stack>
+    </ContentWrapper>
   );
 };
 
