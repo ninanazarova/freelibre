@@ -40,7 +40,6 @@ const RecentTreatments = ({ treatments = [] }: Props) => {
   return (
     <List
       sx={{
-        m: 3,
         borderRadius: 'md',
         bgcolor: 'background.surface',
         'li:last-child': {

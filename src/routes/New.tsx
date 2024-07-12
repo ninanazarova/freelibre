@@ -17,12 +17,11 @@ import RestaurantTwoToneIcon from '@mui/icons-material/RestaurantTwoTone';
 import KeyboardDoubleArrowRightSharpIcon from '@mui/icons-material/KeyboardDoubleArrowRightSharp';
 import KeyboardArrowRightSharpIcon from '@mui/icons-material/KeyboardArrowRightSharp';
 import { KeyboardArrowRight } from '@mui/icons-material';
+import ContentWrapper from '../components/ContentWrapper';
 
 const New = () => {
   return (
-    <Stack direction='column' spacing={3} sx={{ mx: 3, mt: 6 }}>
-      <Typography level='h2'>New Treatment</Typography>
-
+    <ContentWrapper title='New Treatment'>
       <List
         size='lg'
         sx={{
@@ -103,7 +102,7 @@ const New = () => {
           </ListItemButton>
         </ListItem>
       </List>
-    </Stack>
+    </ContentWrapper>
   );
 };
 

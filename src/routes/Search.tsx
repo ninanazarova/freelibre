@@ -6,6 +6,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import client from '../api';
 import Treatment from '../models/TreatmentModel';
 import Treatments from '../components/Treatments';
+import ContentWrapper from '../components/ContentWrapper';
 
 export async function loader({ request }: any) {
   const url = new URL(request.url);
@@ -53,11 +54,9 @@ const Search = () => {
   };
 
   return (
-    <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
-      <Typography level='h2'>Search</Typography>
+    <ContentWrapper title='Search'>
       <Form id='search-form' role='search'>
         <Stack
-          spacing={2}
           sx={{
             [`& .${inputClasses.root}`]: {
               '--Input-focusedThickness': '1px',
@@ -65,7 +64,6 @@ const Search = () => {
             [`& .${inputClasses.input}`]: {
               width: '100%',
             },
-            mb: 3,
           }}
         >
           <FormControl>
@@ -97,7 +95,7 @@ const Search = () => {
         </Stack>
       </Form>
       {treatments && <Treatments treatments={treatments} />}
-    </Stack>
+    </ContentWrapper>
   );
 };
 
