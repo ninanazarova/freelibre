@@ -6,6 +6,7 @@ import Entry from '../models/EntryModel';
 import Treatment from '../models/TreatmentModel';
 import client from '../api';
 import { useLoaderData } from 'react-router-dom';
+import ContentWrapper from '../components/ContentWrapper';
 
 export async function loader() {
   const result = await client.authorize();
@@ -33,7 +34,10 @@ const Overview = () => {
         <>
           <CurrentGlucose direction={lastEntry.direction} mbg={lastEntry.mbg as number} />
           <Chart treatments={treatments.slice().reverse()} entries={entries} />
-          <RecentTreatments treatments={treatments} />
+
+          <ContentWrapper>
+            <RecentTreatments treatments={treatments} />
+          </ContentWrapper>
         </>
       ) : (
         <Alert color='danger' size='lg' variant='soft'>

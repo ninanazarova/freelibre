@@ -11,6 +11,7 @@ import {
 import { ListItem } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../SetupContext';
+import ContentWrapper from '../components/ContentWrapper';
 
 const Settings = () => {
   const { getBaseUrl, getRefreshToken, logout } = useAuth();
@@ -18,8 +19,7 @@ const Settings = () => {
   const refreshToken = getRefreshToken();
   const navigate = useNavigate();
   return (
-    <Stack direction='column' spacing={3} sx={{ px: 3, mt: 6 }}>
-      <Typography level='h2'>Settings</Typography>
+    <ContentWrapper title='Settings'>
       <List
         size='lg'
         sx={{
@@ -77,7 +77,7 @@ const Settings = () => {
       >
         Logout
       </Button>
-    </Stack>
+    </ContentWrapper>
   );
 };
 
