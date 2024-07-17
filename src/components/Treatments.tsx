@@ -58,11 +58,6 @@ const Treatments = ({ treatments = [] }: Props) => {
         '--ListItemDecorator-size': '50px',
         '--ListItem-minHeight': '60px',
         '--ListDivider-gap': '0',
-        // [`& .${sheetClasses.root}`]: {
-        //   p: 0.5,
-        //   lineHeight: 0,
-        //   borderRadius: 'sm',
-        // },
         '> li > a:not(.Mui-selected, [aria-selected="true"]):hover': {
           bgcolor: 'background.level2',
         },
@@ -80,11 +75,9 @@ const Treatments = ({ treatments = [] }: Props) => {
       }}
     >
       {treatments.length === 0 ? (
-        <>
-          <ListItem>
-            <Typography>No treatments found</Typography>
-          </ListItem>
-        </>
+        <ListItem>
+          <Typography>No treatments found</Typography>
+        </ListItem>
       ) : (
         (treatments as Treatment[]).map((treat, index) => {
           const content = render(treat.eventType);
