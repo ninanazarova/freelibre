@@ -14,7 +14,7 @@ import RestaurantTwoToneIcon from '@mui/icons-material/RestaurantTwoTone';
 import KeyboardDoubleArrowRightSharpIcon from '@mui/icons-material/KeyboardDoubleArrowRightSharp';
 import KeyboardArrowRightSharpIcon from '@mui/icons-material/KeyboardArrowRightSharp';
 import dayjs from 'dayjs';
-import { eventType } from '../models/TreatmentModel';
+import { eventType } from '../helpers';
 import { Fragment } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { KeyboardArrowRight } from '@mui/icons-material';
@@ -58,11 +58,6 @@ const Treatments = ({ treatments = [] }: Props) => {
         '--ListItemDecorator-size': '50px',
         '--ListItem-minHeight': '60px',
         '--ListDivider-gap': '0',
-        // [`& .${sheetClasses.root}`]: {
-        //   p: 0.5,
-        //   lineHeight: 0,
-        //   borderRadius: 'sm',
-        // },
         '> li > a:not(.Mui-selected, [aria-selected="true"]):hover': {
           bgcolor: 'background.level2',
         },
@@ -80,11 +75,9 @@ const Treatments = ({ treatments = [] }: Props) => {
       }}
     >
       {treatments.length === 0 ? (
-        <>
-          <ListItem>
-            <Typography>No treatments found</Typography>
-          </ListItem>
-        </>
+        <ListItem>
+          <Typography>No treatments found</Typography>
+        </ListItem>
       ) : (
         (treatments as Treatment[]).map((treat, index) => {
           const content = render(treat.eventType);

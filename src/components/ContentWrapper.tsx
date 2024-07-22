@@ -12,7 +12,7 @@ const ContentWrapper = ({ title, children }: Props) => {
       display='flex'
       flexDirection='column'
       mt={2}
-      mx={'auto'}
+      mx='auto'
       sx={{
         maxWidth: '500px',
         '@media (max-width: 768px)': {

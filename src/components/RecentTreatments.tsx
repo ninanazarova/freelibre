@@ -5,7 +5,7 @@ import RestaurantTwoToneIcon from '@mui/icons-material/RestaurantTwoTone';
 import KeyboardDoubleArrowRightSharpIcon from '@mui/icons-material/KeyboardDoubleArrowRightSharp';
 import KeyboardArrowRightSharpIcon from '@mui/icons-material/KeyboardArrowRightSharp';
 import dayjs from 'dayjs';
-import { eventType } from '../models/TreatmentModel';
+import { eventType } from '../helpers';
 import { Fragment } from 'react';
 
 type Props = {
