@@ -14,7 +14,7 @@ import { ActionFunctionArgs, Form, redirect } from 'react-router-dom';
 import dayjs from 'dayjs';
 import client from '../api';
 import Long from '../models/LongModel';
-import { eventType } from '../models/TreatmentModel';
+import { eventType } from '../helpers';
 import { useOnShowAlert } from '../routes/Root';
 import { useState } from 'react';
 import ContentWrapper from './ContentWrapper';

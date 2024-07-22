@@ -1,3 +1,5 @@
+import { eventType } from '../helpers';
+
 interface TreatmentModel {
   identifier: string;
   date: number; //*
@@ -34,12 +36,12 @@ interface TreatmentModel {
   freelibre_sgv_2h: number;
 }
 
-export enum eventType {
-  MEAL = 'Meal Bolus',
-  RAPID_ACTING = 'Correction Bolus',
-  LONG_ACTING = 'Carb Correction',
-  EXERCISE = 'Exercise',
-}
+// export enum eventType {
+//   MEAL = 'Meal Bolus',
+//   RAPID_ACTING = 'Correction Bolus',
+//   LONG_ACTING = 'Carb Correction',
+//   EXERCISE = 'Exercise',
+// }
 
 export default TreatmentModel;
 

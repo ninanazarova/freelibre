@@ -1,4 +1,4 @@
-import { eventType } from './TreatmentModel';
+import { eventType } from '../helpers';
 
 interface Long {
   date: string; //* ISO
