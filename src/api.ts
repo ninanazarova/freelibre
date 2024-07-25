@@ -29,7 +29,6 @@ function getFromTime() {
 export class Client {
   private refreshToken: string;
   private baseUrl: string;
-
   private accessToken: AccessToken;
 
   constructor(refreshToken: string, baseUrl: string) {
@@ -42,10 +41,12 @@ export class Client {
     this.baseUrl = baseUrl;
     this.refreshToken = refreshToken;
   }
+
   public async authorize(): Promise<AccessToken | null> {
     const url = this.baseUrl + `/api/v2/authorization/request/${this.refreshToken}`;
     try {
-      const { data } = await axios.get(url);
+      const response = await fetch(url);
+      const data = await response.json();
       return {
         tokenString: data.token,
         expiresAt: new Date(data.exp * 1000),
