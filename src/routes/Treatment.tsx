@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/joy';
-import client from '../api';
+import { getGlobalClient } from '../api';
 import dayjs from 'dayjs';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import TreatmentModel from '../models/TreatmentModel';
@@ -9,6 +9,7 @@ import ContentWrapper from '../components/ContentWrapper';
 import TreatmentCard from '../components/TreatmentCard';
 
 export async function loader({ params }: LoaderFunctionArgs) {
+  const client = getGlobalClient();
   const treatment = await client.getTreatment(params.treatmentId as string);
   if (treatment === null) {
     return;

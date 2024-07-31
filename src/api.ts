@@ -1,4 +1,3 @@
-import axios from 'axios';
 import Entry from './models/EntryModel';
 import { sgvToMbg } from './helpers';
 import Meal from './models/MealModel';
@@ -7,6 +6,7 @@ import Long from './models/LongModel';
 import Exercise from './models/ExerciseModel';
 import Treatment from './models/TreatmentModel';
 import dayjs from 'dayjs';
+import { tokenStorage } from './tokenStorage';
 
 type AccessToken = {
   tokenString: string;
@@ -26,72 +26,73 @@ function getFromTime() {
   return from;
 }
 
-export class Client {
-  private refreshToken: string;
+class Client {
   private baseUrl: string;
 
-  private accessToken: AccessToken;
-
-  constructor(refreshToken: string, baseUrl: string) {
+  constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
-    this.refreshToken = refreshToken;
-    this.accessToken = { tokenString: '', expiresAt: null };
   }
 
-  public setAuth({ baseUrl, refreshToken }: { baseUrl: string; refreshToken: string }) {
-    this.baseUrl = baseUrl;
-    this.refreshToken = refreshToken;
-  }
-  public async authorize(): Promise<AccessToken | null> {
-    const url = this.baseUrl + `/api/v2/authorization/request/${this.refreshToken}`;
+  public async authorize(password: string): Promise<AccessToken> {
+    const url = this.baseUrl + `/api/v2/authorization/request/${password}`;
     try {
-      const { data } = await axios.get(url);
+      const response = await fetch(url);
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
       return {
         tokenString: data.token,
         expiresAt: new Date(data.exp * 1000),
       };
-    } catch (e) {
-      console.error(`Authorize NightScout token failed: ${e}`);
-      return null;
+    } catch (error) {
+      throw new Error('Unauthorized');
     }
   }
-  private async refreshAccessToken(): Promise<AccessToken> {
-    if (this.accessToken.expiresAt !== null && this.accessToken.expiresAt > new Date()) {
-      return this.accessToken;
+
+  private async request(url: string, options: RequestInit = {}): Promise<any> {
+    const token = tokenStorage.getToken();
+    const headers = new Headers(options.headers);
+
+    if (token) {
+      headers.append('Authorization', `Bearer ${token}`);
+    }
+    headers.append('Content-Type', 'application/json');
+
+    const response = await fetch(`${this.baseUrl}${url}`, {
+      ...options,
+      headers,
+    });
+
+    if (response.status === 401) {
+      tokenStorage.clear();
+      window.location.href = '/login';
+      throw new Error('Unauthorized');
     }
 
-    const newToken = await this.authorize();
-    if (newToken) {
-      this.accessToken = newToken;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return this.accessToken;
+    return response.json();
   }
 
   public async getEntriesForTreatment(
     treatmentDate: number,
     hoursInterval: number = 12
   ): Promise<Entry[] | []> {
-    const token = await this.refreshAccessToken();
-    const url = this.baseUrl + `/api/v3/entries`;
-
     const half = (hoursInterval * 60) / 2;
     const before = +dayjs(treatmentDate).subtract(half, 'minutes');
     const after = +dayjs(treatmentDate).add(half, 'minutes');
+    const params = new URLSearchParams({
+      date$gte: before.toString(),
+      sort: 'date',
+      fields: 'date,identifier,sgv',
+    });
 
     try {
-      const {
-        data: { result },
-      } = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token.tokenString}`,
-        },
-        params: {
-          date$gte: before,
-          sort: 'date',
-          fields: 'date,identifier,sgv',
-        },
-      });
+      const { result } = await this.request('/api/v3/entries?' + params.toString());
 
       const entries = result
         .filter((e: any) => e.date <= after)
@@ -104,23 +105,14 @@ export class Client {
     return [];
   }
   public async getEntries(): Promise<Entry[] | []> {
-    const token = await this.refreshAccessToken();
-    const url = this.baseUrl + `/api/v3/entries`;
+    const params = new URLSearchParams({
+      date$gte: getFromTime().toString(),
+      sort: 'date',
+      fields: 'date,direction,identifier,sgv',
+    });
 
     try {
-      const {
-        data: { result },
-      } = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token.tokenString}`,
-        },
-        params: {
-          date$gte: getFromTime(),
-          sort: 'date',
-          fields: 'date,direction,identifier,sgv',
-        },
-      });
-
+      const { result } = await this.request('/api/v3/entries?' + params.toString());
       const entries = result.map((entry: Entry) => ({
         ...entry,
         mbg: sgvToMbg(entry.sgv),
@@ -133,21 +125,13 @@ export class Client {
     return [];
   }
   public async searchTreatments(searchString: string): Promise<Treatment[] | []> {
-    const token = await this.refreshAccessToken();
-    const url = this.baseUrl + `/api/v3/treatments`;
+    const params = new URLSearchParams({
+      notes$re: '(?i)' + encodeURIComponent(`${searchString}`) + '(?-i)',
+      sort$desc: 'date',
+    });
 
     try {
-      const {
-        data: { result },
-      } = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token.tokenString}`,
-        },
-        params: {
-          notes$re: '(?i)' + encodeURIComponent(`${searchString}`) + '(?-i)',
-          sort$desc: 'date',
-        },
-      });
+      const { result } = await this.request('/api/v3/treatments?' + params.toString());
 
       return result;
     } catch (error) {
@@ -159,25 +143,16 @@ export class Client {
     treatmentDate: number,
     hoursInterval: number = 12
   ): Promise<Treatment[] | []> {
-    const token = await this.refreshAccessToken();
-    const url = this.baseUrl + `/api/v3/treatments`;
-
     const half = (hoursInterval * 60) / 2;
     const before = +dayjs(treatmentDate).subtract(half, 'minutes');
     const after = +dayjs(treatmentDate).add(half, 'minutes');
+    const params = new URLSearchParams({
+      date$gte: before.toString(),
+      sort$desc: 'date',
+    });
 
     try {
-      const {
-        data: { result },
-      } = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token.tokenString}`,
-        },
-        params: {
-          date$gte: before,
-          sort$desc: 'date',
-        },
-      });
+      const { result } = await this.request('/api/v3/treatments?' + params.toString());
 
       const treatments = result.filter((t: any) => t.date <= after);
 
@@ -188,21 +163,13 @@ export class Client {
     return [];
   }
   public async getTreatments(): Promise<Treatment[] | []> {
-    const token = await this.refreshAccessToken();
-    const url = this.baseUrl + `/api/v3/treatments`;
+    const params = new URLSearchParams({
+      date$gte: getFromTime().toString(),
+      sort$desc: 'date',
+    });
 
     try {
-      const {
-        data: { result },
-      } = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token.tokenString}`,
-        },
-        params: {
-          date$gte: getFromTime(),
-          sort$desc: 'date',
-        },
-      });
+      const { result } = await this.request('/api/v3/treatments?' + params.toString());
 
       return result;
     } catch (error) {
@@ -211,17 +178,8 @@ export class Client {
     return [];
   }
   public async getTreatment(id: string): Promise<Treatment | null> {
-    const token = await this.refreshAccessToken();
-    const url = this.baseUrl + `/api/v3/treatments/${id}`;
-
     try {
-      const {
-        data: { result },
-      } = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token.tokenString}`,
-        },
-      });
+      const { result } = await this.request(`/api/v3/treatments/${id}`);
 
       return result;
     } catch (error) {
@@ -232,15 +190,13 @@ export class Client {
   public async postTreatment(
     formData: Meal | Rapid | Long | Exercise
   ): Promise<Response | undefined> {
-    const token = await this.refreshAccessToken();
-    const url = this.baseUrl + `/api/v3/treatments`;
-
     try {
-      const response = await axios.post(url, formData, {
-        headers: { Authorization: `Bearer ${token.tokenString}` },
+      const response = await this.request('/api/v3/treatments', {
+        method: 'POST',
+        body: JSON.stringify(formData),
       });
 
-      return response.data;
+      return response;
     } catch (error) {
       console.error(error);
     }
@@ -248,9 +204,17 @@ export class Client {
   }
 }
 
-const client = new Client(
-  localStorage.getItem('refresh_token') as string,
-  localStorage.getItem('base_url') as string
-);
+export const createClient = (baseUrl: string) => new Client(baseUrl);
 
-export default client;
+let globalClient: Client | null = null;
+
+export const setGlobalClient = (client: Client | null) => {
+  globalClient = client;
+};
+
+export const getGlobalClient = () => {
+  if (!globalClient) {
+    throw new Error('API client is not initialized');
+  }
+  return globalClient;
+};

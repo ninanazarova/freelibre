@@ -4,16 +4,12 @@ import CurrentGlucose from '../components/CurrentGlucose';
 import RecentTreatments from '../components/RecentTreatments';
 import Entry from '../models/EntryModel';
 import Treatment from '../models/TreatmentModel';
-import client from '../api';
+import { getGlobalClient } from '../api';
 import { useLoaderData } from 'react-router-dom';
 import ContentWrapper from '../components/ContentWrapper';
 
 export async function loader() {
-  const result = await client.authorize();
-  if (result === null) {
-    return { entries: [], treatments: [] };
-  }
-
+  const client = getGlobalClient();
   const entries = await client.getEntries();
   const treatments = await client.getTreatments();
   return { entries, treatments };

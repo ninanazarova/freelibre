@@ -12,7 +12,8 @@ import {
 
 import { ActionFunctionArgs, Form, redirect } from 'react-router-dom';
 import dayjs from 'dayjs';
-import client from '../api';
+import { getGlobalClient } from '../api';
+
 import Rapid from '../models/RapidModel';
 import { eventType } from '../helpers';
 import { useOnShowAlert } from '../routes/Root';
@@ -20,6 +21,7 @@ import { useState } from 'react';
 import ContentWrapper from './ContentWrapper';
 
 export async function action({ request }: ActionFunctionArgs) {
+  const client = getGlobalClient();
   const formData = await request.formData();
   const dateTime = dayjs(formData.get('datetime') as string, 'YYYY-MM-DDTHH:mm').toISOString();
 

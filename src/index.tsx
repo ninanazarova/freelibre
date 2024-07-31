@@ -1,15 +1,9 @@
-import React, { StrictMode, useEffect } from 'react';
+import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import '@fontsource/inter';
 import './index.css';
-import {
-  createBrowserRouter,
-  Outlet,
-  RouterProvider,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom';
-import LoginPage from './routes/LoginPage';
+import { createBrowserRouter, Outlet, redirect, RouterProvider } from 'react-router-dom';
+import LoginPage, { action as loginAction } from './routes/LoginPage';
 import App from './routes/App';
 import ErrorPage from './ErrorPage';
 import Overview, { loader as overviewLoader } from './routes/Overview';
@@ -23,39 +17,9 @@ import Treatment, { loader as treatmentLoader } from './routes/Treatment';
 import Settings from './routes/Settings';
 import NightscoutUrl from './routes/NightscoutUrl';
 import RefreshToken from './routes/RefreshToken';
-import client from './api';
-
-import { AuthProvider, useAuth } from './SetupContext';
+import { authProvider, protectedLoader } from './auth';
 
 function Index() {
-  const navigate = useNavigate();
-  const { hasCredentials } = useAuth();
-  const location = useLocation();
-
-  useEffect(() => {
-    async function manageNavigation() {
-      if (!hasCredentials) {
-        navigate('/login', { replace: true });
-        return;
-      }
-
-      try {
-        const response = await client.authorize();
-        if (response) {
-          location.pathname === '/'
-            ? navigate('/overview', { replace: true })
-            : navigate(location.pathname, { replace: true });
-        } else {
-          navigate('/login', { replace: true, state: { hasBadCredentials: true } });
-        }
-      } catch (e) {
-        navigate('/login', { replace: true });
-      }
-    }
-
-    manageNavigation();
-  }, [hasCredentials, navigate]);
-
   return <Outlet />;
 }
 
@@ -64,25 +28,39 @@ const router = createBrowserRouter([
     path: '/',
     element: <Index />,
     errorElement: <ErrorPage />,
+    loader: async () => {
+      const isAuthenticated = await authProvider.checkAuth();
+      return isAuthenticated ? redirect('/overview') : redirect('/login');
+    },
+  },
+  {
+    path: 'login',
+    element: <LoginPage />,
+    action: loginAction,
+    loader: async () => {
+      const isAuthenticated = await authProvider.checkAuth();
+      return isAuthenticated ? redirect('/overview') : null;
+    },
+  },
+  {
+    element: <App />,
+    errorElement: <ErrorPage />,
     children: [
-      { path: 'login', element: <LoginPage /> },
+      { path: 'overview', element: <Overview />, loader: protectedLoader(overviewLoader) },
+      { path: 'new', element: <New /> },
+      { path: 'new/meal', element: <MealForm />, action: mealFormAction },
+      { path: 'new/rapid', element: <RapidForm />, action: rapidFormAction },
+      { path: 'new/long', element: <LongForm />, action: longFormAction },
+      { path: 'new/exercise', element: <ExerciseForm />, action: exerciseFormAction },
+      { path: 'search', element: <Search />, loader: protectedLoader(searchLoader) },
       {
-        path: '/',
-        element: <App />,
-        children: [
-          { path: 'overview', element: <Overview />, loader: overviewLoader },
-          { path: 'new', element: <New /> },
-          { path: 'new/meal', element: <MealForm />, action: mealFormAction },
-          { path: 'new/rapid', element: <RapidForm />, action: rapidFormAction },
-          { path: 'new/long', element: <LongForm />, action: longFormAction },
-          { path: 'new/exercise', element: <ExerciseForm />, action: exerciseFormAction },
-          { path: 'search', element: <Search />, loader: searchLoader },
-          { path: 'search/:treatmentId', element: <Treatment />, loader: treatmentLoader },
-          { path: 'settings', element: <Settings /> },
-          { path: 'settings/nightscout-url', element: <NightscoutUrl /> },
-          { path: 'settings/refresh-token', element: <RefreshToken /> },
-        ],
+        path: 'search/:treatmentId',
+        element: <Treatment />,
+        loader: protectedLoader(treatmentLoader),
       },
+      { path: 'settings', element: <Settings /> },
+      { path: 'settings/nightscout-url', element: <NightscoutUrl /> },
+      { path: 'settings/refresh-token', element: <RefreshToken /> },
     ],
   },
 ]);
@@ -92,8 +70,6 @@ const root = ReactDOM.createRoot(container);
 
 root.render(
   <StrictMode>
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
+    <RouterProvider router={router} />
   </StrictMode>
 );
