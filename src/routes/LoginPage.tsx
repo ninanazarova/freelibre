@@ -8,40 +8,41 @@ import {
   Typography,
   inputClasses,
 } from '@mui/joy';
-import { ChangeEvent, useState } from 'react';
-import { useAuth } from '../SetupContext';
-import { useLocation, useNavigate } from 'react-router-dom';
-import client from '../api';
+import { useEffect, useState } from 'react';
+import { ActionFunctionArgs, Form, redirect, useActionData } from 'react-router-dom';
+import { authProvider } from '../auth';
+
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const baseUrl = formData.get('url') as string | null;
+  const refreshToken = formData.get('token') as string | null;
+
+  if (!baseUrl || !refreshToken) {
+    return { error: 'You must provide url and token to log in' };
+  }
+
+  try {
+    await authProvider.login(baseUrl, refreshToken);
+  } catch (error) {
+    return { error: 'Incorrect data. Please try again' };
+  }
+
+  return redirect('/overview');
+}
 
 const LoginPage = () => {
+  let actionData = useActionData() as { error: string } | undefined;
   const [url, setUrl] = useState('');
   const [token, setToken] = useState('');
   const [showInfo, setShowInfo] = useState(false);
-  const { setBaseUrl, setRefreshToken } = useAuth();
-  const navigate = useNavigate();
-  let location = useLocation();
 
-  const handleSave = async (e: ChangeEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    client.setAuth({ baseUrl: url, refreshToken: token });
-
-    try {
-      const response = await client.authorize();
-
-      if (response) {
-        setBaseUrl(url);
-        setRefreshToken(token);
-        navigate('/overview', { replace: true });
-      } else {
-        setShowInfo(true);
-        setUrl('');
-        setToken('');
-      }
-    } catch (e) {
-      alert(`Login Page catch err-${e}`);
+  useEffect(() => {
+    if (actionData) {
+      setShowInfo(true);
+      setUrl('');
+      setToken('');
     }
-  };
+  }, [actionData]);
 
   return (
     <>
@@ -54,7 +55,7 @@ const LoginPage = () => {
         size='lg'
         variant='soft'
       >
-        Incorrect data. Please try again
+        {actionData?.error}
       </Snackbar>
 
       <Stack
@@ -65,12 +66,7 @@ const LoginPage = () => {
         sx={{ px: 4, minHeight: '100vh', bgcolor: 'background.level1' }}
       >
         <Typography level='h3'>Set up your Libra</Typography>
-        {location.state?.hasBadCredentials && (
-          <Typography color='warning' level='title-md' variant='soft'>
-            Your credentials have expired. Log in again
-          </Typography>
-        )}
-        <form onSubmit={handleSave}>
+        <Form method='POST' replace>
           <Stack
             spacing={2}
             sx={{
@@ -84,17 +80,22 @@ const LoginPage = () => {
           >
             <FormControl size='lg'>
               <FormLabel>NightScout URL</FormLabel>
-              <Input value={url} onChange={(e) => setUrl(e.target.value)} required />
+              <Input name='url' value={url} onChange={(e) => setUrl(e.target.value)} required />
             </FormControl>
             <FormControl size='lg'>
               <FormLabel>Token</FormLabel>
-              <Input value={token} onChange={(e) => setToken(e.target.value)} required />
+              <Input
+                name='token'
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                required
+              />
             </FormControl>
             <Button size='lg' type='submit'>
               Save
             </Button>
           </Stack>
-        </form>
+        </Form>
       </Stack>
     </>
   );

@@ -1,14 +1,21 @@
 import { IconButton, FormControl, Input, Stack, Typography, inputClasses } from '@mui/joy';
 import React, { useEffect } from 'react';
-import { Form, useLoaderData, useSearchParams, useSubmit } from 'react-router-dom';
+import {
+  Form,
+  LoaderFunctionArgs,
+  useLoaderData,
+  useSearchParams,
+  useSubmit,
+} from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import CancelIcon from '@mui/icons-material/Cancel';
-import client from '../api';
+import { getGlobalClient } from '../api';
 import Treatment from '../models/TreatmentModel';
 import Treatments from '../components/Treatments';
 import ContentWrapper from '../components/ContentWrapper';
 
-export async function loader({ request }: any) {
+export async function loader({ request }: LoaderFunctionArgs) {
+  const client = getGlobalClient();
   const url = new URL(request.url);
   const q = url.searchParams.get('q') || '';
 
