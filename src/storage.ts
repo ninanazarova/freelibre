@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-export const tokenStorage = {
+export const storage = {
   getToken: (): string | null => {
     return getCookie('jwt_token');
   },
@@ -20,8 +20,10 @@ export const tokenStorage = {
     localStorage.removeItem('base_url');
   },
   clear: (): void => {
-    tokenStorage.removeBaseUrl();
-    tokenStorage.removeToken();
+    storage.removeBaseUrl();
+    storage.removeToken();
+
+    localStorage.removeItem('entries');
   },
 };
 

@@ -1,5 +1,6 @@
 import {
   Button,
+  Divider,
   FormControl,
   FormLabel,
   Input,
@@ -14,6 +15,13 @@ import { authProvider } from '../auth';
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
+
+  const loginType = formData.get('login');
+  if (loginType === 'demo') {
+    await authProvider.demoLogin();
+    return redirect('/overview');
+  }
+
   const baseUrl = formData.get('url') as string | null;
   const refreshToken = formData.get('token') as string | null;
 
@@ -35,6 +43,14 @@ const LoginPage = () => {
   const [url, setUrl] = useState('');
   const [token, setToken] = useState('');
   const [showInfo, setShowInfo] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  const handleDemoClick = () => {
+    setIsDemoMode(true);
+  };
+
+  const handleLoginClick = () => {
+    setIsDemoMode(false);
+  };
 
   useEffect(() => {
     if (actionData) {
@@ -80,7 +96,12 @@ const LoginPage = () => {
           >
             <FormControl size='lg'>
               <FormLabel>NightScout URL</FormLabel>
-              <Input name='url' value={url} onChange={(e) => setUrl(e.target.value)} required />
+              <Input
+                name='url'
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                required={!isDemoMode}
+              />
             </FormControl>
             <FormControl size='lg'>
               <FormLabel>Token</FormLabel>
@@ -88,11 +109,28 @@ const LoginPage = () => {
                 name='token'
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
-                required
+                required={!isDemoMode}
               />
             </FormControl>
-            <Button size='lg' type='submit'>
+            <Button
+              size='lg'
+              name='login'
+              value='nightscout'
+              type='submit'
+              onClick={handleLoginClick}
+            >
               Save
+            </Button>
+            <Divider />
+            <Button
+              size='lg'
+              name='login'
+              value='demo'
+              type='submit'
+              color='success'
+              onClick={handleDemoClick}
+            >
+              Try Demo mode
             </Button>
           </Stack>
         </Form>

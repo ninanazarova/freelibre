@@ -6,7 +6,8 @@ import Long from './models/LongModel';
 import Exercise from './models/ExerciseModel';
 import Treatment from './models/TreatmentModel';
 import dayjs from 'dayjs';
-import { tokenStorage } from './tokenStorage';
+import { storage } from './storage';
+import { FakeClient } from './fakeApi';
 
 type AccessToken = {
   tokenString: string;
@@ -25,8 +26,21 @@ function getFromTime() {
   const from = to - hoursInterval * 60 * 60 * 1000;
   return from;
 }
+export interface IClient {
+  authorize(password: string): Promise<AccessToken>;
+  getEntries(): Promise<Entry[] | []>;
+  getTreatments(): Promise<Treatment[] | []>;
+  postTreatment(formData: Meal | Rapid | Long | Exercise): Promise<Response | undefined>;
+  searchTreatments(searchString: string): Promise<Treatment[] | []>;
+  getTreatment(id: string): Promise<Treatment | null>;
+  getEntriesForTreatment(treatmentDate: number, hoursInterval: number): Promise<Entry[] | []>;
+  getTreatmentsForTreatment(
+    treatmentDate: number,
+    hoursInterval: number
+  ): Promise<Treatment[] | []>;
+}
 
-class Client {
+class Client implements IClient {
   private baseUrl: string;
 
   constructor(baseUrl: string) {
@@ -52,7 +66,7 @@ class Client {
   }
 
   private async request(url: string, options: RequestInit = {}): Promise<any> {
-    const token = tokenStorage.getToken();
+    const token = storage.getToken();
     const headers = new Headers(options.headers);
 
     if (token) {
@@ -66,7 +80,7 @@ class Client {
     });
 
     if (response.status === 401) {
-      tokenStorage.clear();
+      storage.clear();
       window.location.href = '/login';
       throw new Error('Unauthorized');
     }
@@ -204,15 +218,17 @@ class Client {
   }
 }
 
-export const createClient = (baseUrl: string) => new Client(baseUrl);
+export const createClient = (baseUrl: string, useMock: boolean = false): IClient => {
+  return useMock ? new FakeClient(baseUrl) : new Client(baseUrl);
+};
 
-let globalClient: Client | null = null;
+let globalClient: IClient | null = null;
 
-export const setGlobalClient = (client: Client | null) => {
+export const setGlobalClient = (client: IClient | null) => {
   globalClient = client;
 };
 
-export const getGlobalClient = () => {
+export const getGlobalClient = (): IClient => {
   if (!globalClient) {
     throw new Error('API client is not initialized');
   }

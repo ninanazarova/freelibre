@@ -1,5 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
-import { tokenStorage } from './tokenStorage';
+import { storage } from './storage';
 import { createClient, setGlobalClient } from './api';
 import {
   LoaderFunctionArgs,
@@ -10,6 +10,7 @@ import {
 interface AuthProvider {
   isAuthenticated: boolean;
   baseUrl: string | null;
+  demoLogin(): Promise<void>;
   login(baseUrl: string, password: string): Promise<void>;
   logout(): void;
   isTokenExpired(token: string): boolean;
@@ -23,24 +24,40 @@ export const authProvider: AuthProvider = {
   isAuthenticated: false,
   baseUrl: null,
 
+  async demoLogin() {
+    const client = createClient('demo', true);
+    const response = await client.authorize('demo');
+    storage.setToken(response.tokenString);
+    storage.setBaseUrl('demo');
+    this.isAuthenticated = true;
+    this.baseUrl = 'demo';
+    setGlobalClient(client);
+  },
+
   async login(baseUrl: string, password: string) {
     const client = createClient(baseUrl);
     const response = await client.authorize(password);
-    tokenStorage.setToken(response.tokenString);
-    tokenStorage.setBaseUrl(baseUrl);
+    storage.setToken(response.tokenString);
+    storage.setBaseUrl(baseUrl);
     this.isAuthenticated = true;
     this.baseUrl = baseUrl;
     setGlobalClient(client);
   },
   logout() {
-    tokenStorage.clear();
+    storage.clear();
     this.isAuthenticated = false;
     this.baseUrl = null;
     setGlobalClient(null);
   },
   async checkAuth() {
-    const token = tokenStorage.getToken();
-    this.baseUrl = tokenStorage.getBaseUrl();
+    const token = storage.getToken();
+    this.baseUrl = storage.getBaseUrl();
+
+    if (this.baseUrl == 'demo') {
+      this.isAuthenticated = true;
+      setGlobalClient(createClient(this.baseUrl, true));
+      return true;
+    }
 
     if (!token || !this.baseUrl) {
       this.isAuthenticated = false;
@@ -70,10 +87,10 @@ export const authProvider: AuthProvider = {
     const client = createClient(this.baseUrl);
     try {
       const response = await client.authorize(password);
-      tokenStorage.setToken(response.tokenString);
+      storage.setToken(response.tokenString);
       return response.tokenString;
     } catch (error) {
-      tokenStorage.clear();
+      storage.clear();
       this.isAuthenticated = false;
       return null;
     }
