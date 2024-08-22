@@ -109,14 +109,23 @@ export const authProvider: AuthProvider = {
 
 type LoaderFunction = RouterLoaderFunction | (() => Promise<any>);
 
-export function protectedLoader(loader: LoaderFunction): RouterLoaderFunction {
+export function protectedLoader(loader?: LoaderFunction): RouterLoaderFunction {
   return async (args: LoaderFunctionArgs) => {
     const isAuthenticated = await authProvider.checkAuth();
     if (!isAuthenticated) {
       return redirect('/login');
     }
-    return loader.length > 0
-      ? (loader as RouterLoaderFunction)(args)
-      : (loader as () => Promise<any>)();
+
+    if (loader) {
+      // Check if the loader is a function that expects arguments
+      if (loader.length > 0) {
+        return (loader as RouterLoaderFunction)(args);
+      } else {
+        // If the loader doesn't expect arguments, call it without args
+        return (loader as () => Promise<any>)();
+      }
+    }
+
+    return null;
   };
 }

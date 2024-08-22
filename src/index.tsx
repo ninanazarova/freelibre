@@ -15,8 +15,6 @@ import LongForm, { action as longFormAction } from './components/LongForm';
 import ExerciseForm, { action as exerciseFormAction } from './components/ExerciseForm';
 import Treatment, { loader as treatmentLoader } from './routes/Treatment';
 import Settings from './routes/Settings';
-import NightscoutUrl from './routes/NightscoutUrl';
-import RefreshToken from './routes/RefreshToken';
 import { authProvider, protectedLoader } from './auth';
 
 function Index() {
@@ -47,20 +45,38 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       { path: 'overview', element: <Overview />, loader: protectedLoader(overviewLoader) },
-      { path: 'new', element: <New /> },
-      { path: 'new/meal', element: <MealForm />, action: mealFormAction },
-      { path: 'new/rapid', element: <RapidForm />, action: rapidFormAction },
-      { path: 'new/long', element: <LongForm />, action: longFormAction },
-      { path: 'new/exercise', element: <ExerciseForm />, action: exerciseFormAction },
+      { path: 'new', element: <New />, loader: protectedLoader() },
+      {
+        path: 'new/meal',
+        element: <MealForm />,
+        loader: protectedLoader(),
+        action: mealFormAction,
+      },
+      {
+        path: 'new/rapid',
+        element: <RapidForm />,
+        loader: protectedLoader(),
+        action: rapidFormAction,
+      },
+      {
+        path: 'new/long',
+        element: <LongForm />,
+        loader: protectedLoader(),
+        action: longFormAction,
+      },
+      {
+        path: 'new/exercise',
+        element: <ExerciseForm />,
+        loader: protectedLoader(),
+        action: exerciseFormAction,
+      },
       { path: 'search', element: <Search />, loader: protectedLoader(searchLoader) },
       {
         path: 'search/:treatmentId',
         element: <Treatment />,
         loader: protectedLoader(treatmentLoader),
       },
-      { path: 'settings', element: <Settings /> },
-      { path: 'settings/nightscout-url', element: <NightscoutUrl /> },
-      { path: 'settings/refresh-token', element: <RefreshToken /> },
+      { path: 'settings', element: <Settings />, loader: protectedLoader() },
     ],
   },
 ]);
