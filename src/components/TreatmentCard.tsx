@@ -78,7 +78,7 @@ function TreatmentCard({ treat }: Props) {
         </Container>
       )}
 
-      {treat.freelibre_sgv && (
+      {treat.freelibre_2h && (
         <ProgressT level='title-lg'>
           {sgvToMbg(treat.freelibre_sgv)} → {sgvToMbg(treat.freelibre_sgv_2h)}
         </ProgressT>

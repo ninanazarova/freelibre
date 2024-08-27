@@ -29,10 +29,10 @@ export interface IClient {
   postTreatment(formData: TreatmentUnion): Promise<Response | undefined>;
   searchTreatments(searchString: string): Promise<Treatment[] | []>;
   getTreatment(id: string): Promise<Treatment | null>;
-  getEntriesForTreatment(treatmentDate: number, hoursInterval: number): Promise<Entry[] | []>;
+  getEntriesForTreatment(treatmentDate: number, hoursInterval?: number): Promise<Entry[] | []>;
   getTreatmentsForTreatment(
     treatmentDate: number,
-    hoursInterval: number
+    hoursInterval?: number
   ): Promise<Treatment[] | []>;
 }
 
