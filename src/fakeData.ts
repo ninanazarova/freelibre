@@ -201,5 +201,7 @@ export const addTreatmentToLocalStorage = (object: TreatmentUnion): void => {
 
   existingArray.push({ ...rest, date: timestamp, identifier: `treat-${existingArray.length}` });
 
+  existingArray.sort((a: Treatment, b: Treatment) => a.date - b.date);
+
   localStorage.setItem('treatments', JSON.stringify(existingArray));
 };
