@@ -98,7 +98,7 @@ const Treatments = ({ treatments = [] }: Props) => {
                   <ListItemContent>
                     <Box display='flex' justifyContent='space-between'>
                       <Typography level='title-sm'>{`${content.title}`}</Typography>
-                      {treat.freelibre_sgv && (
+                      {treat.freelibre_2h && (
                         <Typography level='body-sm'>
                           {sgvToMbg(treat.freelibre_sgv)} → {sgvToMbg(treat.freelibre_sgv_2h)}
                         </Typography>

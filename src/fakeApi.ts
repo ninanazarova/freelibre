@@ -87,6 +87,16 @@ export class FakeClient implements IClient {
   }
   public async searchTreatments(searchString: string): Promise<Treatment[] | []> {
     try {
+      await new Promise((r) => setTimeout(r, 500));
+      const storedTreatments = localStorage.getItem('treatments');
+      let treatments;
+      if (storedTreatments) {
+        treatments = JSON.parse(storedTreatments);
+      }
+
+      return treatments.filter((treat: Treatment) =>
+        treat.notes.toLowerCase().includes(searchString.toLowerCase())
+      );
     } catch (error) {
       console.error(error);
     }
