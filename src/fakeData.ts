@@ -1,75 +1,7 @@
 import { eventType, sgvToMbg } from './helpers';
 import Entry, { Direction } from './models/EntryModel';
+import Treatment, { TreatmentUnion } from './models/TreatmentModel';
 
-import Treatment from './models/TreatmentModel';
-let treatments = [
-  // running 7:00
-  {
-    app: 'demo-freelibre',
-    eventType: eventType.EXERCISE,
-    duration: 30,
-    notes: 'Running',
-    time: '7:00',
-    identifier: 'treat-0',
-  },
-  // breakfast 8:00
-  {
-    app: 'demo-freelibre',
-    eventType: eventType.MEAL,
-    carbs: 10,
-    protein: 0,
-    fat: 0,
-    insulin: 10,
-    preBolus: 10,
-    notes: 'Cheese croissant, vegetables, coffee, kinder pingui',
-    time: '8:00',
-    identifier: 'treat-1',
-  },
-  // lunch 13:00
-  {
-    app: 'demo-freelibre',
-    eventType: eventType.MEAL,
-    carbs: 10,
-    protein: 0,
-    fat: 0,
-    insulin: 10,
-    preBolus: 10,
-    notes: 'Sausage with mashed potato, sauerkraut',
-    time: '13:00',
-    identifier: 'treat-2',
-  },
-  // long 17:00
-  {
-    app: 'demo-freelibre',
-    eventType: eventType.LONG_ACTING,
-    notes: '',
-    insulin: 10,
-    time: '17:00',
-    identifier: 'treat-3',
-  },
-  // tennis 18:00
-  {
-    app: 'demo-freelibre',
-    eventType: eventType.EXERCISE,
-    duration: 50,
-    notes: 'Tennis',
-    time: '18:00',
-    identifier: 'treat-4',
-  },
-  // dinner 19:00
-  {
-    app: 'demo-freelibre',
-    eventType: eventType.MEAL,
-    carbs: 10,
-    protein: 0,
-    fat: 0,
-    insulin: 10,
-    preBolus: 10,
-    notes: 'Tuna salad with vegetables and avocado',
-    time: '19:00',
-    identifier: 'treat-5',
-  },
-];
 export const generateEntries = (
   startTime: number,
   endTime: number,
@@ -160,52 +92,116 @@ export const generateEntries = (
   return entries;
 };
 
-export const generateTreatments = (startDate: number, endDate: number): Treatment[] => {
-  // Convert timestamps to Date objects
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+export const generateTreatments = (): Treatment[] => {
+  let treatments = [
+    // running 7:00
+    {
+      app: 'demo-freelibre',
+      eventType: eventType.EXERCISE,
+      duration: 30,
+      notes: 'Running',
+      time: '7:00',
+      identifier: 'treat-0',
+    },
+    // breakfast 8:00
+    {
+      app: 'demo-freelibre',
+      eventType: eventType.MEAL,
+      carbs: 10,
+      protein: 0,
+      fat: 0,
+      insulin: 10,
+      preBolus: 10,
+      notes: 'Cheese croissant, vegetables, coffee, kinder pingui',
+      time: '8:00',
+      identifier: 'treat-1',
+    },
+    // lunch 13:00
+    {
+      app: 'demo-freelibre',
+      eventType: eventType.MEAL,
+      carbs: 10,
+      protein: 0,
+      fat: 0,
+      insulin: 10,
+      preBolus: 10,
+      notes: 'Sausage with mashed potato, sauerkraut',
+      time: '13:00',
+      identifier: 'treat-2',
+    },
+    // long 17:00
+    {
+      app: 'demo-freelibre',
+      eventType: eventType.LONG_ACTING,
+      notes: '',
+      insulin: 10,
+      time: '17:00',
+      identifier: 'treat-3',
+    },
+    // tennis 18:00
+    {
+      app: 'demo-freelibre',
+      eventType: eventType.EXERCISE,
+      duration: 50,
+      notes: 'Tennis',
+      time: '18:00',
+      identifier: 'treat-4',
+    },
+    // dinner 19:00
+    {
+      app: 'demo-freelibre',
+      eventType: eventType.MEAL,
+      carbs: 10,
+      protein: 0,
+      fat: 0,
+      insulin: 10,
+      preBolus: 10,
+      notes: 'Tuna salad with vegetables and avocado',
+      time: '19:00',
+      identifier: 'treat-5',
+    },
+  ];
+  const referenceDate = new Date();
 
-  // Extract hours and minutes
-  const startTime = start.getHours() * 60 + start.getMinutes();
-  const endTime = end.getHours() * 60 + end.getMinutes();
+  const createTreatmentDate = (treat: any, referenceDate: Date) => {
+    const [hours, minutes] = treat.time.split(':').map(Number);
+    const treatDate = new Date(referenceDate);
+    treatDate.setHours(hours, minutes, 0, 0);
 
-  // Function to convert time string to minutes
-  const timeToMinutes = (timeString: string) => {
-    const [hours, minutes] = timeString.split(':').map(Number);
-    return hours * 60 + minutes;
+    return treatDate;
   };
 
-  // Function to check if a time is within the range
-  const isTimeInRange = (time: string) => {
-    const minutes = timeToMinutes(time);
-    if (startTime <= endTime) {
-      return minutes >= startTime && minutes <= endTime;
-    } else {
-      // Handle case where range crosses midnight
-      return minutes >= startTime || minutes <= endTime;
-    }
-  };
+  const result = treatments.map((treat) => {
+    const treatDate = createTreatmentDate(treat, referenceDate);
+    const { time, ...rest } = treat;
 
-  // Filter the food intakes
-  const result = treatments
-    .filter((treat) => isTimeInRange(treat.time))
-    .map((treat) => {
-      const treatDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    return {
+      ...rest,
+      date: treatDate.getTime(),
+      freelibre_2h: false,
+      freelibre_sgv: 0,
+      freelibre_sgv_2h: 0,
+    };
+  });
 
-      // Set the time of the intake
-      const [hours, minutes] = treat.time.split(':').map(Number);
-      treatDate.setHours(hours, minutes, 0, 0);
-
-      const { time, ...rest } = treat;
-
-      return {
-        ...rest,
-        date: treatDate.getTime(),
-        freelibre_2h: false,
-        freelibre_sgv: 0,
-        freelibre_sgv_2h: 0,
-      };
-    });
+  localStorage.setItem('treatments', JSON.stringify(result));
 
   return result;
+};
+
+export const addTreatmentToLocalStorage = (object: TreatmentUnion): void => {
+  const existingArrayString = localStorage.getItem('treatments');
+  let existingArray: any[] = [];
+
+  if (existingArrayString) {
+    existingArray = JSON.parse(existingArrayString);
+  }
+  const { date, ...rest } = object;
+  const timestamp = new Date(date).getTime();
+
+  existingArray.push({ ...rest, date: timestamp, identifier: `treat-${existingArray.length}` });
+
+  existingArray.sort((a: Treatment, b: Treatment) => a.date - b.date);
+
+  localStorage.setItem('treatments', JSON.stringify(existingArray));
 };
