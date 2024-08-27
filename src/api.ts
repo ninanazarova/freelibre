@@ -1,10 +1,6 @@
 import Entry from './models/EntryModel';
 import { sgvToMbg } from './helpers';
-import Meal from './models/MealModel';
-import Rapid from './models/RapidModel';
-import Long from './models/LongModel';
-import Exercise from './models/ExerciseModel';
-import Treatment from './models/TreatmentModel';
+import Treatment, { TreatmentUnion } from './models/TreatmentModel';
 import dayjs from 'dayjs';
 import { storage } from './storage';
 import { FakeClient } from './fakeApi';
@@ -30,7 +26,7 @@ export interface IClient {
   authorize(password: string): Promise<AccessToken>;
   getEntries(): Promise<Entry[] | []>;
   getTreatments(): Promise<Treatment[] | []>;
-  postTreatment(formData: Meal | Rapid | Long | Exercise): Promise<Response | undefined>;
+  postTreatment(formData: TreatmentUnion): Promise<Response | undefined>;
   searchTreatments(searchString: string): Promise<Treatment[] | []>;
   getTreatment(id: string): Promise<Treatment | null>;
   getEntriesForTreatment(treatmentDate: number, hoursInterval: number): Promise<Entry[] | []>;
@@ -201,9 +197,7 @@ class Client implements IClient {
     }
     return null;
   }
-  public async postTreatment(
-    formData: Meal | Rapid | Long | Exercise
-  ): Promise<Response | undefined> {
+  public async postTreatment(formData: TreatmentUnion): Promise<Response | undefined> {
     try {
       const response = await this.request('/api/v3/treatments', {
         method: 'POST',

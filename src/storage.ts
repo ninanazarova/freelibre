@@ -24,6 +24,7 @@ export const storage = {
     storage.removeToken();
 
     localStorage.removeItem('entries');
+    localStorage.removeItem('treatments');
   },
 };
 

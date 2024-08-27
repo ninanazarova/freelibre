@@ -1,7 +1,7 @@
 import { eventType, sgvToMbg } from './helpers';
 import Entry, { Direction } from './models/EntryModel';
+import Treatment, { TreatmentUnion } from './models/TreatmentModel';
 
-import Treatment from './models/TreatmentModel';
 let treatments = [
   // running 7:00
   {
@@ -161,43 +161,34 @@ export const generateEntries = (
 };
 
 export const generateTreatments = (startDate: number, endDate: number): Treatment[] => {
-  // Convert timestamps to Date objects
   const start = new Date(startDate);
   const end = new Date(endDate);
 
-  // Extract hours and minutes
-  const startTime = start.getHours() * 60 + start.getMinutes();
-  const endTime = end.getHours() * 60 + end.getMinutes();
+  const createTreatmentDate = (treat: any, referenceDate: Date) => {
+    const [hours, minutes] = treat.time.split(':').map(Number);
+    const treatDate = new Date(referenceDate);
+    treatDate.setHours(hours, minutes, 0, 0);
 
-  // Function to convert time string to minutes
-  const timeToMinutes = (timeString: string) => {
-    const [hours, minutes] = timeString.split(':').map(Number);
-    return hours * 60 + minutes;
-  };
-
-  // Function to check if a time is within the range
-  const isTimeInRange = (time: string) => {
-    const minutes = timeToMinutes(time);
-    if (startTime <= endTime) {
-      return minutes >= startTime && minutes <= endTime;
-    } else {
-      // Handle case where range crosses midnight
-      return minutes >= startTime || minutes <= endTime;
+    // If the treatment time is before the reference time, it's for the next day
+    if (treatDate < referenceDate) {
+      treatDate.setDate(treatDate.getDate() + 1);
     }
+
+    return treatDate;
   };
 
-  // Filter the food intakes
+  const isTimeInRange = (treatmentDate: Date) => {
+    return treatmentDate >= start && treatmentDate <= end;
+  };
+
   const result = treatments
-    .filter((treat) => isTimeInRange(treat.time))
     .map((treat) => {
-      const treatDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-
-      // Set the time of the intake
-      const [hours, minutes] = treat.time.split(':').map(Number);
-      treatDate.setHours(hours, minutes, 0, 0);
-
+      const treatDate = createTreatmentDate(treat, start);
+      return { treat, treatDate };
+    })
+    .filter(({ treatDate }) => isTimeInRange(treatDate))
+    .map(({ treat, treatDate }) => {
       const { time, ...rest } = treat;
-
       return {
         ...rest,
         date: treatDate.getTime(),
@@ -208,4 +199,19 @@ export const generateTreatments = (startDate: number, endDate: number): Treatmen
     });
 
   return result;
+};
+
+export const addTreatmentToLocalStorage = (object: TreatmentUnion): void => {
+  const existingArrayString = localStorage.getItem('treatments');
+  let existingArray: any[] = [];
+
+  if (existingArrayString) {
+    existingArray = JSON.parse(existingArrayString);
+  }
+  const { date, ...rest } = object;
+  const timestamp = new Date(date).getTime();
+
+  existingArray.push({ ...rest, date: timestamp, identifier: `treat-${existingArray.length}` });
+
+  localStorage.setItem('treatments', JSON.stringify(existingArray));
 };

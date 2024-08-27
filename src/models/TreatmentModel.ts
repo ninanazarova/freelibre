@@ -1,4 +1,8 @@
 import { eventType } from '../helpers';
+import Exercise from './ExerciseModel';
+import Long from './LongModel';
+import Meal from './MealModel';
+import Rapid from './RapidModel';
 
 interface TreatmentModel {
   identifier: string;
@@ -19,3 +23,5 @@ interface TreatmentModel {
 }
 
 export default TreatmentModel;
+
+export type TreatmentUnion = Meal | Exercise | Long | Rapid;

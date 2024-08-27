@@ -1,12 +1,8 @@
 import Entry from './models/EntryModel';
-import Treatment from './models/TreatmentModel';
+import Treatment, { TreatmentUnion } from './models/TreatmentModel';
 import dayjs from 'dayjs';
-import { generateEntries, generateTreatments } from './fakeData';
+import { addTreatmentToLocalStorage, generateEntries, generateTreatments } from './fakeData';
 import { IClient } from './api';
-import Meal from './models/MealModel';
-import Rapid from './models/RapidModel';
-import Long from './models/LongModel';
-import Exercise from './models/ExerciseModel';
 
 type AccessToken = {
   tokenString: string;
@@ -63,6 +59,7 @@ export class FakeClient implements IClient {
       }
       const startTime = dayjs().subtract(12, 'hour').valueOf();
       const endTime = dayjs().valueOf();
+
       const treatments = generateTreatments(startTime, endTime);
 
       localStorage.setItem('treatments', JSON.stringify(treatments));
@@ -73,10 +70,10 @@ export class FakeClient implements IClient {
     }
     return [];
   }
-  public async postTreatment(
-    formData: Meal | Rapid | Long | Exercise
-  ): Promise<Response | undefined> {
+  public async postTreatment(formData: TreatmentUnion): Promise<Response | undefined> {
     try {
+      await new Promise((r) => setTimeout(r, 500));
+      addTreatmentToLocalStorage(formData);
     } catch (error) {
       console.error(error);
     }
