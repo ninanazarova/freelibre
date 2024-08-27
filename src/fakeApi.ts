@@ -64,13 +64,7 @@ export class FakeClient implements IClient {
       const startTime = dayjs().subtract(12, 'hour').valueOf();
       const endTime = dayjs().valueOf();
 
-      const isTimeInRange = (treatmentDate: number) => {
-        return treatmentDate >= startTime && treatmentDate <= endTime;
-      };
-
-      return treatments
-        .filter((treat: Treatment) => isTimeInRange(treat.date))
-        .sort((a: Treatment, b: Treatment) => a.date - b.date);
+      return treatments.filter((treat: Treatment) => isTimeInRange(treat.date, startTime, endTime));
     } catch (error) {
       console.error(error);
     }
@@ -92,11 +86,11 @@ export class FakeClient implements IClient {
       let treatments;
       if (storedTreatments) {
         treatments = JSON.parse(storedTreatments);
-      }
 
-      return treatments.filter((treat: Treatment) =>
-        treat.notes.toLowerCase().includes(searchString.toLowerCase())
-      );
+        return treatments.filter((treat: Treatment) =>
+          treat.notes.toLowerCase().includes(searchString.toLowerCase())
+        );
+      }
     } catch (error) {
       console.error(error);
     }
@@ -104,6 +98,14 @@ export class FakeClient implements IClient {
   }
   public async getTreatment(id: string): Promise<Treatment | null> {
     try {
+      await new Promise((r) => setTimeout(r, 500));
+      const storedTreatments = localStorage.getItem('treatments');
+      let treatments;
+      if (storedTreatments) {
+        treatments = JSON.parse(storedTreatments);
+
+        return treatments.find((treat: Treatment) => treat.identifier === id);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -111,9 +113,16 @@ export class FakeClient implements IClient {
   }
   public async getEntriesForTreatment(
     treatmentDate: number,
-    hoursInterval: number
+    hoursInterval: number = 12
   ): Promise<Entry[] | []> {
     try {
+      await new Promise((r) => setTimeout(r, 500));
+      const half = (hoursInterval * 60) / 2;
+      const before = +dayjs(treatmentDate).subtract(half, 'minutes');
+      const after = +dayjs(treatmentDate).add(half, 'minutes');
+      const interval = 3 * 60 * 1000;
+      const entries = generateEntries(before, after, interval, 110, 240);
+      return entries;
     } catch (error) {
       console.error(error);
     }
@@ -121,12 +130,28 @@ export class FakeClient implements IClient {
   }
   public async getTreatmentsForTreatment(
     treatmentDate: number,
-    hoursInterval: number
+    hoursInterval: number = 12
   ): Promise<Treatment[] | []> {
     try {
+      await new Promise((r) => setTimeout(r, 500));
+      const storedTreatments = localStorage.getItem('treatments');
+      let treatments;
+      if (storedTreatments) {
+        treatments = JSON.parse(storedTreatments);
+
+        const half = (hoursInterval * 60) / 2;
+        const before = +dayjs(treatmentDate).subtract(half, 'minutes');
+        const after = +dayjs(treatmentDate).add(half, 'minutes');
+
+        return treatments.filter((treat: Treatment) => isTimeInRange(treat.date, before, after));
+      }
     } catch (error) {
       console.error(error);
     }
     return [];
   }
 }
+
+const isTimeInRange = (treatmentDate: number, startTime: number, endTime: number) => {
+  return treatmentDate >= startTime && treatmentDate <= endTime;
+};
