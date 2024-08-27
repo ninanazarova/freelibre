@@ -2,74 +2,6 @@ import { eventType, sgvToMbg } from './helpers';
 import Entry, { Direction } from './models/EntryModel';
 import Treatment, { TreatmentUnion } from './models/TreatmentModel';
 
-let treatments = [
-  // running 7:00
-  {
-    app: 'demo-freelibre',
-    eventType: eventType.EXERCISE,
-    duration: 30,
-    notes: 'Running',
-    time: '7:00',
-    identifier: 'treat-0',
-  },
-  // breakfast 8:00
-  {
-    app: 'demo-freelibre',
-    eventType: eventType.MEAL,
-    carbs: 10,
-    protein: 0,
-    fat: 0,
-    insulin: 10,
-    preBolus: 10,
-    notes: 'Cheese croissant, vegetables, coffee, kinder pingui',
-    time: '8:00',
-    identifier: 'treat-1',
-  },
-  // lunch 13:00
-  {
-    app: 'demo-freelibre',
-    eventType: eventType.MEAL,
-    carbs: 10,
-    protein: 0,
-    fat: 0,
-    insulin: 10,
-    preBolus: 10,
-    notes: 'Sausage with mashed potato, sauerkraut',
-    time: '13:00',
-    identifier: 'treat-2',
-  },
-  // long 17:00
-  {
-    app: 'demo-freelibre',
-    eventType: eventType.LONG_ACTING,
-    notes: '',
-    insulin: 10,
-    time: '17:00',
-    identifier: 'treat-3',
-  },
-  // tennis 18:00
-  {
-    app: 'demo-freelibre',
-    eventType: eventType.EXERCISE,
-    duration: 50,
-    notes: 'Tennis',
-    time: '18:00',
-    identifier: 'treat-4',
-  },
-  // dinner 19:00
-  {
-    app: 'demo-freelibre',
-    eventType: eventType.MEAL,
-    carbs: 10,
-    protein: 0,
-    fat: 0,
-    insulin: 10,
-    preBolus: 10,
-    notes: 'Tuna salad with vegetables and avocado',
-    time: '19:00',
-    identifier: 'treat-5',
-  },
-];
 export const generateEntries = (
   startTime: number,
   endTime: number,
@@ -160,43 +92,99 @@ export const generateEntries = (
   return entries;
 };
 
-export const generateTreatments = (startDate: number, endDate: number): Treatment[] => {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+export const generateTreatments = (): Treatment[] => {
+  let treatments = [
+    // running 7:00
+    {
+      app: 'demo-freelibre',
+      eventType: eventType.EXERCISE,
+      duration: 30,
+      notes: 'Running',
+      time: '7:00',
+      identifier: 'treat-0',
+    },
+    // breakfast 8:00
+    {
+      app: 'demo-freelibre',
+      eventType: eventType.MEAL,
+      carbs: 10,
+      protein: 0,
+      fat: 0,
+      insulin: 10,
+      preBolus: 10,
+      notes: 'Cheese croissant, vegetables, coffee, kinder pingui',
+      time: '8:00',
+      identifier: 'treat-1',
+    },
+    // lunch 13:00
+    {
+      app: 'demo-freelibre',
+      eventType: eventType.MEAL,
+      carbs: 10,
+      protein: 0,
+      fat: 0,
+      insulin: 10,
+      preBolus: 10,
+      notes: 'Sausage with mashed potato, sauerkraut',
+      time: '13:00',
+      identifier: 'treat-2',
+    },
+    // long 17:00
+    {
+      app: 'demo-freelibre',
+      eventType: eventType.LONG_ACTING,
+      notes: '',
+      insulin: 10,
+      time: '17:00',
+      identifier: 'treat-3',
+    },
+    // tennis 18:00
+    {
+      app: 'demo-freelibre',
+      eventType: eventType.EXERCISE,
+      duration: 50,
+      notes: 'Tennis',
+      time: '18:00',
+      identifier: 'treat-4',
+    },
+    // dinner 19:00
+    {
+      app: 'demo-freelibre',
+      eventType: eventType.MEAL,
+      carbs: 10,
+      protein: 0,
+      fat: 0,
+      insulin: 10,
+      preBolus: 10,
+      notes: 'Tuna salad with vegetables and avocado',
+      time: '19:00',
+      identifier: 'treat-5',
+    },
+  ];
+  const referenceDate = new Date();
 
   const createTreatmentDate = (treat: any, referenceDate: Date) => {
     const [hours, minutes] = treat.time.split(':').map(Number);
     const treatDate = new Date(referenceDate);
     treatDate.setHours(hours, minutes, 0, 0);
 
-    // If the treatment time is before the reference time, it's for the next day
-    if (treatDate < referenceDate) {
-      treatDate.setDate(treatDate.getDate() + 1);
-    }
-
     return treatDate;
   };
 
-  const isTimeInRange = (treatmentDate: Date) => {
-    return treatmentDate >= start && treatmentDate <= end;
-  };
+  const result = treatments.map((treat) => {
+    const treatDate = createTreatmentDate(treat, referenceDate);
+    const { time, ...rest } = treat;
 
-  const result = treatments
-    .map((treat) => {
-      const treatDate = createTreatmentDate(treat, start);
-      return { treat, treatDate };
-    })
-    .filter(({ treatDate }) => isTimeInRange(treatDate))
-    .map(({ treat, treatDate }) => {
-      const { time, ...rest } = treat;
-      return {
-        ...rest,
-        date: treatDate.getTime(),
-        freelibre_2h: false,
-        freelibre_sgv: 0,
-        freelibre_sgv_2h: 0,
-      };
-    });
+    return {
+      ...rest,
+      date: treatDate.getTime(),
+      freelibre_2h: false,
+      freelibre_sgv: 0,
+      freelibre_sgv_2h: 0,
+    };
+  });
+
+  localStorage.setItem('treatments', JSON.stringify(result));
 
   return result;
 };

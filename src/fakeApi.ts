@@ -49,22 +49,28 @@ export class FakeClient implements IClient {
     }
     return [];
   }
+
   public async getTreatments(): Promise<Treatment[] | []> {
     try {
       await new Promise((r) => setTimeout(r, 500));
-
       const storedTreatments = localStorage.getItem('treatments');
+      let treatments;
       if (storedTreatments) {
-        return JSON.parse(storedTreatments);
+        treatments = JSON.parse(storedTreatments);
+      } else {
+        treatments = generateTreatments();
       }
+
       const startTime = dayjs().subtract(12, 'hour').valueOf();
       const endTime = dayjs().valueOf();
 
-      const treatments = generateTreatments(startTime, endTime);
+      const isTimeInRange = (treatmentDate: number) => {
+        return treatmentDate >= startTime && treatmentDate <= endTime;
+      };
 
-      localStorage.setItem('treatments', JSON.stringify(treatments));
-
-      return treatments;
+      return treatments
+        .filter((treat: Treatment) => isTimeInRange(treat.date))
+        .sort((a: Treatment, b: Treatment) => a.date - b.date);
     } catch (error) {
       console.error(error);
     }
